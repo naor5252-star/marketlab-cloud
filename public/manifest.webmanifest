@@ -1,0 +1,15 @@
+{
+  "name": "MarketLab Cloud",
+  "short_name": "MarketLab",
+  "description": "Beginner-friendly educational paper trading and decision analysis.",
+  "start_url": "/",
+  "scope": "/",
+  "display": "standalone",
+  "background_color": "#061522",
+  "theme_color": "#061522",
+  "orientation": "portrait-primary",
+  "icons": [
+    {"src":"/icon.svg","sizes":"any","type":"image/svg+xml","purpose":"any"},
+    {"src":"/icon-maskable.svg","sizes":"any","type":"image/svg+xml","purpose":"maskable"}
+  ]
+}

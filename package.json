@@ -1,0 +1,17 @@
+{
+  "name": "marketlab-cloud",
+  "version": "2.0.0",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "dev": "wrangler dev",
+    "deploy": "wrangler deploy",
+    "test": "node --test tests/*.test.mjs && node tests/legacy-history.test.cjs && node tests/legacy-trading.test.cjs && node tests/legacy-performance.test.cjs && node tests/legacy-insights.test.cjs",
+    "check": "node --check src/worker.js && node --test tests/*.test.mjs",
+    "cf-typegen": "wrangler types",
+    "smoke": "bash tests/smoke-local.sh"
+  },
+  "devDependencies": {
+    "wrangler": "^4.111.0"
+  }
+}

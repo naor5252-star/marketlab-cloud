@@ -1,0 +1,6 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512">
+  <rect width="512" height="512" rx="112" fill="#071827"/>
+  <path d="M84 357 174 251l73 61 111-151 70 54" fill="none" stroke="#55a8ff" stroke-width="34" stroke-linecap="round" stroke-linejoin="round"/>
+  <circle cx="174" cy="251" r="17" fill="#42d6a4"/><circle cx="247" cy="312" r="17" fill="#42d6a4"/><circle cx="358" cy="161" r="17" fill="#42d6a4"/>
+  <text x="256" y="438" text-anchor="middle" font-family="system-ui,sans-serif" font-size="72" font-weight="800" fill="#eef7ff">ML</text>
+</svg>

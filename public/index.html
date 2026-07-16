@@ -1,0 +1,3516 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta
+      name="viewport"
+      content="width=device-width,initial-scale=1,viewport-fit=cover,user-scalable=no"
+    />
+    <meta name="theme-color" content="#07111d" />
+    <meta name="apple-mobile-web-app-capable" content="yes" />
+    <meta
+      name="apple-mobile-web-app-status-bar-style"
+      content="black-translucent"
+    />
+    <title>MarketLab Local 1.12.0</title>
+    <style>
+      :root {
+        --bg: #07111d;
+        --card: #0e1c2b;
+        --card2: #142538;
+        --text: #eff6ff;
+        --muted: #90a3b8;
+        --line: #263d54;
+        --blue: #56a1ff;
+        --good: #4bd5a2;
+        --bad: #ff8293;
+        --warn: #ffc55c;
+      }
+      * {
+        box-sizing: border-box;
+        -webkit-tap-highlight-color: transparent;
+      }
+      body {
+        margin: 0;
+        background:
+          radial-gradient(circle at top right, #153d65 0, transparent 35%),
+          var(--bg);
+        color: var(--text);
+        font-family:
+          -apple-system, BlinkMacSystemFont, "SF Pro Display", sans-serif;
+        min-height: 100vh;
+      }
+      .app {
+        max-width: 760px;
+        margin: auto;
+        padding-bottom: 90px;
+      }
+      .top {
+        position: sticky;
+        top: 0;
+        z-index: 20;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        padding: calc(14px + env(safe-area-inset-top)) 16px 12px;
+        background: #07111de6;
+        backdrop-filter: blur(20px);
+        border-bottom: 1px solid var(--line);
+      }
+      .brand {
+        font-size: 24px;
+        font-weight: 900;
+        letter-spacing: -0.05em;
+      }
+      .sub {
+        font-size: 10px;
+        color: var(--muted);
+        margin-top: 2px;
+      }
+      .status {
+        display: flex;
+        gap: 6px;
+        align-items: center;
+        padding: 7px 9px;
+        border-radius: 999px;
+        background: #183248;
+        font-size: 10px;
+        font-weight: 800;
+        color: var(--warn);
+      }
+      .status.online {
+        color: var(--good);
+        background: #10372e;
+      }
+      .content {
+        padding: 14px;
+      }
+      .banner {
+        padding: 12px 13px;
+        border: 1px solid #805f21;
+        background: #3b2d16;
+        border-radius: 16px;
+        color: var(--warn);
+        font-size: 11px;
+        line-height: 1.45;
+        margin-bottom: 12px;
+      }
+      .tabs {
+        display: flex;
+        gap: 7px;
+        overflow-x: auto;
+        padding-bottom: 11px;
+        scrollbar-width: none;
+      }
+      .tabs::-webkit-scrollbar {
+        display: none;
+      }
+      .tabs button {
+        flex: 0 0 auto;
+        border: 1px solid var(--line);
+        background: var(--card);
+        color: var(--muted);
+        padding: 10px 12px;
+        border-radius: 13px;
+        font-weight: 850;
+      }
+      .tabs button.active {
+        background: var(--blue);
+        border-color: var(--blue);
+        color: #06101a;
+      }
+      .msg {
+        display: flex;
+        justify-content: space-between;
+        padding: 11px 12px;
+        border-radius: 13px;
+        background: #132e46;
+        color: var(--blue);
+        font-size: 11px;
+        margin-bottom: 11px;
+      }
+      .stack {
+        display: grid;
+        gap: 11px;
+      }
+      .card {
+        background: #0e1c2be8;
+        border: 1px solid var(--line);
+        border-radius: 21px;
+        padding: 16px;
+        box-shadow: 0 16px 34px #0003;
+      }
+      .eyebrow {
+        text-transform: uppercase;
+        letter-spacing: 0.13em;
+        font-size: 9px;
+        color: var(--muted);
+        font-weight: 900;
+      }
+      .card h2 {
+        font-size: 20px;
+        margin: 4px 0 12px;
+        letter-spacing: -0.04em;
+      }
+      .hero h1 {
+        font-size: 36px;
+        margin: 8px 0;
+        letter-spacing: -0.06em;
+      }
+      .row {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 10px;
+      }
+      .muted {
+        color: var(--muted);
+        font-size: 11px;
+      }
+      .good {
+        color: var(--good);
+      }
+      .bad {
+        color: var(--bad);
+      }
+      .grid {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 9px;
+      }
+      .metric {
+        background: var(--card);
+        border: 1px solid var(--line);
+        border-radius: 17px;
+        padding: 14px;
+      }
+      .metric strong {
+        display: block;
+        font-size: 18px;
+        margin: 5px 0;
+      }
+      .metric span {
+        font-size: 10px;
+        color: var(--muted);
+      }
+      .list {
+        display: grid;
+      }
+      .item {
+        display: flex;
+        align-items: center;
+        gap: 10px;
+        padding: 12px 0;
+        border-bottom: 1px solid var(--line);
+      }
+      .item:last-child {
+        border: 0;
+      }
+      .avatar {
+        width: 39px;
+        height: 39px;
+        border-radius: 13px;
+        background: #17395a;
+        color: var(--blue);
+        display: grid;
+        place-items: center;
+        font-size: 11px;
+        font-weight: 900;
+      }
+      .main {
+        flex: 1;
+      }
+      .main strong {
+        font-size: 13px;
+      }
+      .main small {
+        display: block;
+        color: var(--muted);
+        font-size: 10px;
+        margin-top: 3px;
+      }
+      .right {
+        text-align: right;
+      }
+      .right strong {
+        font-size: 13px;
+      }
+      .right small {
+        display: block;
+        color: var(--muted);
+        font-size: 10px;
+        margin-top: 3px;
+      }
+      .form {
+        display: grid;
+        gap: 11px;
+      }
+      .field {
+        display: grid;
+        gap: 6px;
+      }
+      .field label {
+        font-size: 10px;
+        color: var(--muted);
+        font-weight: 800;
+      }
+      .field input,
+      .field select,
+      .field textarea {
+        width: 100%;
+        border: 1px solid var(--line);
+        background: var(--card2);
+        color: var(--text);
+        padding: 12px;
+        border-radius: 13px;
+        font-size: 16px;
+      }
+      .two {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 9px;
+      }
+      .seg {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        background: var(--card2);
+        padding: 4px;
+        border-radius: 13px;
+      }
+      .seg button {
+        border: 0;
+        background: none;
+        color: var(--muted);
+        padding: 10px;
+        border-radius: 10px;
+        font-weight: 900;
+      }
+      .seg .active.buy {
+        background: #123b30;
+        color: var(--good);
+      }
+      .seg .active.sell {
+        background: #49202a;
+        color: var(--bad);
+      }
+      .btn {
+        border: 0;
+        border-radius: 13px;
+        padding: 13px;
+        background: linear-gradient(135deg, var(--blue), #2d7fe7);
+        color: #06101a;
+        font-weight: 900;
+        font-size: 13px;
+      }
+      .btn.secondary {
+        background: var(--card2);
+        color: var(--text);
+        border: 1px solid var(--line);
+      }
+      .btn:disabled {
+        opacity: 0.45;
+      }
+      .quote {
+        padding: 14px;
+        border-radius: 16px;
+        background: var(--card2);
+        margin-top: 11px;
+      }
+      .quote h1 {
+        font-size: 32px;
+        margin: 6px 0;
+      }
+      .chart {
+        width: 100%;
+        height: 150px;
+        color: var(--blue);
+        margin-top: 10px;
+      }
+      .empty {
+        padding: 24px;
+        text-align: center;
+        color: var(--muted);
+        font-size: 12px;
+      }
+      .warning {
+        padding: 10px;
+        border-radius: 12px;
+        background: #3a2b15;
+        color: var(--warn);
+        font-size: 11px;
+      }
+      .nav {
+        position: fixed;
+        left: 50%;
+        bottom: 0;
+        transform: translateX(-50%);
+        width: min(760px, 100%);
+        display: grid;
+        grid-template-columns: repeat(9, 1fr);
+        padding: 8px 5px calc(8px + env(safe-area-inset-bottom));
+        background: #091421ef;
+        backdrop-filter: blur(20px);
+        border-top: 1px solid var(--line);
+      }
+      .nav button {
+        border: 0;
+        background: none;
+        color: var(--muted);
+        display: grid;
+        justify-items: center;
+        gap: 3px;
+        font-size: 9px;
+      }
+      .nav button b {
+        font-size: 18px;
+      }
+      .nav button.active {
+        color: var(--blue);
+      }
+      .lesson {
+        padding: 12px;
+        border-left: 3px solid var(--blue);
+        background: var(--card2);
+        border-radius: 12px;
+        margin-top: 8px;
+      }
+      .lesson strong {
+        font-size: 12px;
+      }
+      .lesson p {
+        font-size: 11px;
+        color: var(--muted);
+        line-height: 1.5;
+        margin: 5px 0 0;
+      }
+      @media (max-width: 390px) {
+        .grid {
+          grid-template-columns: 1fr;
+        }
+        .nav button span {
+          font-size: 8px;
+        }
+      }
+      .history-card {
+        overflow: hidden;
+      }
+      .history-head {
+        display: flex;
+        align-items: flex-start;
+        justify-content: space-between;
+        gap: 10px;
+      }
+      .range-tabs {
+        display: flex;
+        gap: 5px;
+        padding: 4px;
+        background: var(--card2);
+        border: 1px solid var(--line);
+        border-radius: 13px;
+      }
+      .range-tabs button {
+        border: 0;
+        background: transparent;
+        color: var(--muted);
+        padding: 8px 10px;
+        border-radius: 9px;
+        font-size: 11px;
+        font-weight: 900;
+      }
+      .range-tabs button.active {
+        background: var(--blue);
+        color: #06101a;
+      }
+      .history-summary {
+        display: grid;
+        grid-template-columns: repeat(4, 1fr);
+        gap: 7px;
+        margin: 12px 0;
+      }
+      .history-summary div {
+        padding: 10px;
+        border: 1px solid var(--line);
+        border-radius: 13px;
+        background: var(--card2);
+      }
+      .history-summary span {
+        display: block;
+        color: var(--muted);
+        font-size: 8px;
+        text-transform: uppercase;
+        letter-spacing: 0.08em;
+        font-weight: 800;
+      }
+      .history-summary strong {
+        display: block;
+        margin-top: 5px;
+        font-size: 13px;
+      }
+      .history-canvas {
+        position: relative;
+        height: 238px;
+        margin: 6px -4px 0;
+        touch-action: pan-y;
+        user-select: none;
+      }
+      .history-svg {
+        width: 100%;
+        height: 100%;
+        display: block;
+        overflow: visible;
+      }
+      .history-grid {
+        stroke: var(--line);
+        stroke-width: 1;
+      }
+      .history-axis-label {
+        fill: var(--muted);
+        font-size: 10px;
+        font-family: -apple-system, BlinkMacSystemFont, sans-serif;
+      }
+      .history-line {
+        fill: none;
+        stroke: var(--good);
+        stroke-width: 3.5;
+        stroke-linecap: round;
+        stroke-linejoin: round;
+        vector-effect: non-scaling-stroke;
+      }
+      .history-line.negative {
+        stroke: var(--bad);
+      }
+      .history-area {
+        fill: var(--good);
+        opacity: 0.1;
+      }
+      .history-area.negative {
+        fill: var(--bad);
+      }
+      .chart-crosshair {
+        position: absolute;
+        top: 13px;
+        bottom: 29px;
+        width: 1px;
+        background: #c8dcf4aa;
+        pointer-events: none;
+        display: none;
+      }
+      .chart-dot {
+        position: absolute;
+        width: 11px;
+        height: 11px;
+        border-radius: 50%;
+        background: var(--text);
+        border: 3px solid var(--blue);
+        transform: translate(-50%, -50%);
+        pointer-events: none;
+        display: none;
+      }
+      .chart-tooltip {
+        position: absolute;
+        z-index: 4;
+        min-width: 112px;
+        padding: 8px 9px;
+        border-radius: 10px;
+        background: #06101aeb;
+        border: 1px solid var(--line);
+        box-shadow: 0 10px 24px #0008;
+        pointer-events: none;
+        display: none;
+      }
+      .chart-tooltip strong {
+        display: block;
+        font-size: 12px;
+      }
+      .chart-tooltip span {
+        display: block;
+        color: var(--muted);
+        font-size: 9px;
+        margin-top: 2px;
+      }
+      .coverage-note {
+        margin-top: 9px;
+        padding: 9px 10px;
+        border-radius: 11px;
+        background: #3a2b15;
+        color: var(--warn);
+        font-size: 10px;
+        line-height: 1.45;
+      }
+      .history-footer {
+        display: flex;
+        justify-content: space-between;
+        color: var(--muted);
+        font-size: 9px;
+        margin-top: 3px;
+      }
+      @media (max-width: 480px) {
+        .history-summary {
+          grid-template-columns: 1fr 1fr;
+        }
+        .history-head {
+          display: block;
+        }
+        .range-tabs {
+          width: max-content;
+          margin-top: 10px;
+        }
+      }
+      .split-marker {
+        stroke: var(--warn);
+        stroke-width: 1.5;
+        stroke-dasharray: 5 4;
+        vector-effect: non-scaling-stroke;
+      }
+      .split-marker-dot {
+        fill: var(--warn);
+        stroke: #07111d;
+        stroke-width: 2;
+        vector-effect: non-scaling-stroke;
+      }
+      .split-events {
+        display: grid;
+        gap: 7px;
+        margin-top: 10px;
+      }
+      .split-event {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 10px;
+        padding: 9px 10px;
+        border: 1px solid #805f21;
+        background: #3b2d16;
+        border-radius: 11px;
+        color: var(--warn);
+        font-size: 10px;
+      }
+      .split-event strong {
+        font-size: 11px;
+      }
+      .adjusted-badge {
+        display: inline-flex;
+        align-items: center;
+        gap: 5px;
+        margin-top: 5px;
+        padding: 5px 8px;
+        border-radius: 999px;
+        background: #123b30;
+        color: var(--good);
+        font-size: 9px;
+        font-weight: 900;
+      }
+      .split-warning {
+        margin-top: 9px;
+        padding: 9px 10px;
+        border-radius: 11px;
+        background: #351f29;
+        color: var(--bad);
+        font-size: 10px;
+        line-height: 1.45;
+      }
+
+      .market-board-head {
+        display: flex;
+        align-items: flex-end;
+        justify-content: space-between;
+        gap: 10px;
+        margin-bottom: 11px;
+      }
+      .market-board-head .field {
+        flex: 1;
+      }
+      .market-board {
+        display: grid;
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+        gap: 9px;
+      }
+      .ticker-card {
+        position: relative;
+        padding: 12px;
+        border: 1px solid var(--line);
+        background: var(--card2);
+        border-radius: 16px;
+        min-width: 0;
+      }
+      .ticker-card.selected {
+        border-color: var(--blue);
+        box-shadow: 0 0 0 1px var(--blue) inset;
+      }
+      .ticker-top {
+        display: flex;
+        justify-content: space-between;
+        gap: 6px;
+      }
+      .ticker-symbol {
+        font-size: 15px;
+        font-weight: 950;
+      }
+      .ticker-remove {
+        border: 0;
+        background: none;
+        color: var(--muted);
+        font-size: 16px;
+        padding: 0 2px;
+      }
+      .ticker-price {
+        font-size: 21px;
+        font-weight: 950;
+        margin: 7px 0 2px;
+        letter-spacing: -0.04em;
+      }
+      .ticker-change {
+        font-size: 10px;
+        font-weight: 850;
+      }
+      .ticker-position {
+        display: flex;
+        justify-content: space-between;
+        gap: 6px;
+        margin: 9px 0;
+        color: var(--muted);
+        font-size: 9px;
+      }
+      .ticker-position strong {
+        color: var(--text);
+      }
+      .quick-actions {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 6px;
+      }
+      .quick-actions button {
+        border: 0;
+        border-radius: 9px;
+        padding: 8px 4px;
+        font-size: 10px;
+        font-weight: 950;
+      }
+      .quick-buy {
+        background: #123b30;
+        color: var(--good);
+      }
+      .quick-sell {
+        background: #49202a;
+        color: var(--bad);
+      }
+      .ticker-open {
+        width: 100%;
+        border: 0;
+        background: none;
+        color: var(--blue);
+        font-size: 9px;
+        font-weight: 850;
+        padding: 8px 0 0;
+      }
+      .board-controls {
+        display: grid;
+        grid-template-columns: 1fr auto;
+        gap: 8px;
+        margin-bottom: 11px;
+      }
+      .board-quantity {
+        max-width: 115px;
+      }
+      .position-side {
+        display: inline-flex;
+        padding: 3px 6px;
+        border-radius: 999px;
+        font-size: 8px;
+        font-weight: 950;
+      }
+      .position-side.long {
+        background: #123b30;
+        color: var(--good);
+      }
+      .position-side.short {
+        background: #49202a;
+        color: var(--bad);
+      }
+      .position-side.flat {
+        background: #263d54;
+        color: var(--muted);
+      }
+      .unlimited-note {
+        padding: 10px;
+        border-radius: 12px;
+        background: #132e46;
+        color: var(--blue);
+        font-size: 10px;
+        line-height: 1.45;
+        margin-top: 10px;
+      }
+      .exposure-grid {
+        display: grid;
+        grid-template-columns: repeat(2, 1fr);
+        gap: 9px;
+      }
+      .exposure-grid .metric {
+        min-width: 0;
+      }
+      .signed-qty.long {
+        color: var(--good);
+      }
+      .signed-qty.short {
+        color: var(--bad);
+      }
+      @media (max-width: 360px) {
+        .market-board {
+          grid-template-columns: 1fr;
+        }
+        .market-board-head {
+          display: block;
+        }
+        .market-board-head .btn {
+          width: 100%;
+          margin-top: 8px;
+        }
+      }
+      .trade-result {
+        display: grid;
+        justify-items: end;
+        gap: 2px;
+        min-width: 104px;
+      }
+      .trade-result strong {
+        font-size: 14px;
+      }
+      .trade-result small {
+        font-size: 9px;
+        font-weight: 850;
+      }
+      .result-kind {
+        display: inline-flex;
+        margin-top: 4px;
+        padding: 4px 7px;
+        border-radius: 999px;
+        background: #17304a;
+        color: var(--blue);
+        font-size: 8px;
+        font-weight: 900;
+        text-transform: uppercase;
+        letter-spacing: 0.05em;
+      }
+      .ticker-pnl {
+        margin: 8px 0 9px;
+        padding: 8px 9px;
+        border-radius: 10px;
+        background: #0b1724;
+        font-size: 10px;
+        font-weight: 900;
+      }
+      .position-pnl {
+        font-weight: 900;
+      }
+      .trade-price {
+        color: var(--muted);
+        font-size: 9px;
+        margin-top: 3px;
+      }
+      .trade-fee {
+        color: var(--muted);
+        font-size: 8px;
+        margin-top: 2px;
+      }
+      .trade-prices {
+        display: grid;
+        gap: 2px;
+        margin-top: 4px;
+        color: var(--muted);
+        font-size: 9px;
+      }
+      .trade-prices b {
+        color: var(--text);
+      }
+      .generic-chart {
+        position: relative;
+        touch-action: pan-y;
+        user-select: none;
+      }
+      .generic-chart .chart {
+        display: block;
+        width: 100%;
+        height: auto;
+      }
+      .chart-help {
+        color: var(--muted);
+        font-size: 9px;
+        margin-top: 6px;
+      }
+      .ai-mode {
+        display: inline-flex;
+        align-items: center;
+        gap: 6px;
+        padding: 6px 9px;
+        border-radius: 999px;
+        background: #17304a;
+        color: var(--blue);
+        font-size: 9px;
+        font-weight: 900;
+      }
+      .ai-mode.openai {
+        background: #123b30;
+        color: var(--good);
+      }
+      .ai-actions {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 8px;
+      }
+      .ai-result-head {
+        display: flex;
+        align-items: flex-start;
+        justify-content: space-between;
+        gap: 10px;
+      }
+      .ai-confidence {
+        min-width: 72px;
+        text-align: center;
+        padding: 10px;
+        border-radius: 14px;
+        background: var(--card2);
+        border: 1px solid var(--line);
+      }
+      .ai-confidence strong {
+        display: block;
+        font-size: 20px;
+      }
+      .ai-confidence span {
+        font-size: 8px;
+        color: var(--muted);
+        text-transform: uppercase;
+      }
+      .ai-cards {
+        display: grid;
+        gap: 9px;
+      }
+      .ai-card {
+        padding: 13px;
+        border: 1px solid var(--line);
+        background: var(--card2);
+        border-radius: 15px;
+      }
+      .ai-card-head {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 8px;
+      }
+      .ai-card h3 {
+        font-size: 14px;
+        margin: 0;
+      }
+      .ai-signal {
+        padding: 4px 7px;
+        border-radius: 999px;
+        font-size: 8px;
+        font-weight: 900;
+        text-transform: uppercase;
+      }
+      .ai-signal.positive {
+        background: #123b30;
+        color: var(--good);
+      }
+      .ai-signal.negative {
+        background: #49202a;
+        color: var(--bad);
+      }
+      .ai-signal.warning {
+        background: #3b2d16;
+        color: var(--warn);
+      }
+      .ai-signal.neutral {
+        background: #17304a;
+        color: var(--blue);
+      }
+      .ai-card p {
+        font-size: 11px;
+        line-height: 1.5;
+        color: var(--muted);
+        margin: 8px 0;
+      }
+      .ai-evidence {
+        display: grid;
+        gap: 4px;
+        margin: 8px 0;
+      }
+      .ai-evidence span {
+        font-size: 9px;
+        color: #c5d7e8;
+        padding-left: 12px;
+        position: relative;
+      }
+      .ai-evidence span:before {
+        content: "•";
+        position: absolute;
+        left: 1px;
+        color: var(--blue);
+      }
+      .ai-action {
+        padding: 9px;
+        border-radius: 10px;
+        background: #0a1724;
+        color: var(--text);
+        font-size: 10px;
+        line-height: 1.4;
+      }
+      .ai-warning {
+        padding: 9px 10px;
+        border-radius: 11px;
+        background: #351f29;
+        color: var(--bad);
+        font-size: 10px;
+      }
+      .ai-limitations {
+        font-size: 10px;
+        color: var(--muted);
+        line-height: 1.5;
+      }
+      .code-block {
+        display: block;
+        overflow-x: auto;
+        margin-top: 8px;
+        padding: 10px;
+        border-radius: 11px;
+        background: #07111d;
+        border: 1px solid var(--line);
+        color: #c7e2ff;
+        font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
+        font-size: 9px;
+        white-space: pre-wrap;
+      }
+      @media (max-width: 430px) {
+        .ai-actions {
+          grid-template-columns: 1fr;
+        }
+        .nav button b {
+          font-size: 16px;
+        }
+        .nav button span {
+          font-size: 7px;
+        }
+      }
+
+      .performance-controls {
+        display: grid;
+        gap: 9px;
+      }
+      .performance-toolbar {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 9px;
+      }
+      .performance-ranges,
+      .performance-metrics {
+        display: flex;
+        gap: 5px;
+        padding: 4px;
+        background: var(--card2);
+        border: 1px solid var(--line);
+        border-radius: 13px;
+        overflow-x: auto;
+      }
+      .performance-ranges button,
+      .performance-metrics button {
+        flex: 1;
+        border: 0;
+        background: transparent;
+        color: var(--muted);
+        padding: 8px 7px;
+        border-radius: 9px;
+        font-size: 10px;
+        font-weight: 900;
+        white-space: nowrap;
+      }
+      .performance-ranges button.active,
+      .performance-metrics button.active {
+        background: var(--blue);
+        color: #06101a;
+      }
+      .performance-summary {
+        display: grid;
+        grid-template-columns: repeat(4, 1fr);
+        gap: 7px;
+        margin: 12px 0;
+      }
+      .performance-summary div {
+        padding: 10px;
+        border: 1px solid var(--line);
+        border-radius: 13px;
+        background: var(--card2);
+      }
+      .performance-summary span {
+        display: block;
+        color: var(--muted);
+        font-size: 8px;
+        text-transform: uppercase;
+        letter-spacing: 0.08em;
+        font-weight: 800;
+      }
+      .performance-summary strong {
+        display: block;
+        margin-top: 5px;
+        font-size: 13px;
+      }
+      .performance-canvas {
+        position: relative;
+        height: 265px;
+        margin: 4px -4px 0;
+        touch-action: pan-y;
+      }
+      .performance-svg {
+        width: 100%;
+        height: 100%;
+        display: block;
+        overflow: visible;
+      }
+      .performance-line {
+        fill: none;
+        stroke: var(--good);
+        stroke-width: 3.5;
+        stroke-linecap: round;
+        stroke-linejoin: round;
+        vector-effect: non-scaling-stroke;
+      }
+      .performance-line.negative {
+        stroke: var(--bad);
+      }
+      .performance-area {
+        fill: var(--good);
+        opacity: 0.1;
+      }
+      .performance-area.negative {
+        fill: var(--bad);
+      }
+      .performance-zero {
+        stroke: #90a3b866;
+        stroke-width: 1;
+        stroke-dasharray: 4 4;
+      }
+      .trade-marker {
+        cursor: pointer;
+      }
+      .trade-marker circle {
+        stroke: #07111d;
+        stroke-width: 2;
+        vector-effect: non-scaling-stroke;
+      }
+      .trade-marker.buy circle {
+        fill: var(--blue);
+      }
+      .trade-marker.sell circle {
+        fill: var(--bad);
+      }
+      .trade-marker text {
+        fill: #06101a;
+        font-size: 8px;
+        font-weight: 950;
+        text-anchor: middle;
+        dominant-baseline: central;
+        pointer-events: none;
+      }
+      .performance-legend {
+        display: flex;
+        gap: 13px;
+        align-items: center;
+        color: var(--muted);
+        font-size: 9px;
+        margin-top: 8px;
+      }
+      .performance-legend span:before {
+        content: "";
+        display: inline-block;
+        width: 8px;
+        height: 8px;
+        border-radius: 50%;
+        margin-right: 5px;
+      }
+      .performance-legend .buy:before {
+        background: var(--blue);
+      }
+      .performance-legend .sell:before {
+        background: var(--bad);
+      }
+      .performance-event {
+        display: grid;
+        grid-template-columns: auto 1fr auto;
+        gap: 10px;
+        align-items: center;
+        padding: 11px 0;
+        border-bottom: 1px solid var(--line);
+      }
+      .performance-event:last-child {
+        border: 0;
+      }
+      .event-badge {
+        width: 36px;
+        height: 36px;
+        border-radius: 12px;
+        display: grid;
+        place-items: center;
+        font-size: 10px;
+        font-weight: 950;
+      }
+      .event-badge.buy {
+        background: #17395a;
+        color: var(--blue);
+      }
+      .event-badge.sell {
+        background: #49202a;
+        color: var(--bad);
+      }
+      .event-main strong {
+        font-size: 12px;
+      }
+      .event-main small {
+        display: block;
+        color: var(--muted);
+        font-size: 9px;
+        margin-top: 3px;
+      }
+      .event-balance {
+        text-align: right;
+      }
+      .event-balance strong {
+        font-size: 12px;
+      }
+      .event-balance small {
+        display: block;
+        color: var(--muted);
+        font-size: 9px;
+        margin-top: 3px;
+      }
+      @media (max-width: 480px) {
+        .performance-toolbar {
+          grid-template-columns: 1fr;
+        }
+        .performance-summary {
+          grid-template-columns: 1fr 1fr;
+        }
+        .nav button span {
+          font-size: 6.5px;
+        }
+      }
+      .refresh-all {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        gap: 7px;
+        white-space: nowrap;
+      }
+      .refresh-all.busy {
+        opacity: 0.55;
+      }
+      .ticker-source {
+        margin: 5px 0 8px;
+        color: var(--muted);
+        font-size: 8px;
+        line-height: 1.35;
+      }
+      .provider-pill {
+        display: inline-flex;
+        margin-top: 6px;
+        padding: 5px 8px;
+        border-radius: 999px;
+        background: #123b30;
+        color: var(--good);
+        font-size: 9px;
+        font-weight: 900;
+      }
+      .provider-pill.fallback {
+        background: #3a2b15;
+        color: var(--warn);
+      }
+      @media (max-width: 480px) {
+        .market-board-head {
+          align-items: stretch;
+          flex-direction: column;
+        }
+        .refresh-all {
+          width: 100%;
+        }
+      }
+
+      .journal-panel {
+        margin-top: 12px;
+        padding: 12px;
+        border: 1px solid var(--line);
+        background: #0a1724;
+        border-radius: 15px;
+      }
+      .journal-panel summary {
+        cursor: pointer;
+        font-weight: 900;
+        font-size: 12px;
+        color: var(--blue);
+      }
+      .journal-grid {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 9px;
+        margin-top: 11px;
+      }
+      .journal-grid .wide {
+        grid-column: 1/-1;
+      }
+      .trade-thesis {
+        margin-top: 8px;
+        padding: 9px 10px;
+        background: #12263a;
+        border-radius: 11px;
+        color: var(--muted);
+        font-size: 10px;
+        line-height: 1.45;
+      }
+      .benchmark-row {
+        display: flex;
+        gap: 6px;
+        flex-wrap: wrap;
+        margin-top: 7px;
+      }
+      .benchmark-pill {
+        padding: 5px 7px;
+        border-radius: 999px;
+        background: #172b40;
+        color: var(--muted);
+        font-size: 9px;
+        font-weight: 800;
+      }
+      .benchmark-pill.outperform {
+        color: var(--good);
+        background: #123b30;
+      }
+      .benchmark-pill.underperform {
+        color: var(--bad);
+        background: #49202a;
+      }
+      .review-box {
+        margin-top: 9px;
+        padding: 10px;
+        border: 1px solid #365879;
+        border-radius: 12px;
+        background: #102235;
+      }
+      .review-box h3 {
+        font-size: 13px;
+        margin: 0 0 5px;
+      }
+      .review-box ul {
+        margin: 7px 0 0;
+        padding-left: 18px;
+        color: var(--muted);
+        font-size: 10px;
+        line-height: 1.5;
+      }
+      .review-actions {
+        margin-top: 7px;
+      }
+      .review-actions button {
+        padding: 7px 9px;
+        font-size: 10px;
+      }
+      .lab-scenarios {
+        display: grid;
+        grid-template-columns: repeat(3, 1fr);
+        gap: 7px;
+        margin-top: 10px;
+      }
+      .scenario {
+        padding: 10px;
+        border: 1px solid var(--line);
+        border-radius: 13px;
+        background: var(--card2);
+      }
+      .scenario span {
+        display: block;
+        color: var(--muted);
+        font-size: 9px;
+      }
+      .scenario strong {
+        display: block;
+        margin-top: 4px;
+        font-size: 13px;
+      }
+      .exposure-bar {
+        height: 9px;
+        border-radius: 999px;
+        background: #172a3d;
+        overflow: hidden;
+        margin-top: 7px;
+      }
+      .exposure-bar span {
+        display: block;
+        height: 100%;
+        background: linear-gradient(
+          90deg,
+          var(--good),
+          var(--warn),
+          var(--bad)
+        );
+      }
+      .xray-position {
+        display: grid;
+        grid-template-columns: 70px 1fr auto;
+        gap: 8px;
+        align-items: center;
+        padding: 9px 0;
+        border-bottom: 1px solid var(--line);
+      }
+      .xray-position:last-child {
+        border: 0;
+      }
+      .weight-track {
+        height: 7px;
+        background: #172a3d;
+        border-radius: 999px;
+        overflow: hidden;
+      }
+      .weight-track i {
+        display: block;
+        height: 100%;
+        background: var(--blue);
+      }
+      .correlation-grid {
+        display: grid;
+        gap: 7px;
+        margin-top: 8px;
+      }
+      .correlation-row {
+        display: flex;
+        justify-content: space-between;
+        gap: 10px;
+        padding: 9px 10px;
+        border: 1px solid var(--line);
+        border-radius: 11px;
+        background: var(--card2);
+        font-size: 10px;
+      }
+      .lab-note {
+        padding: 10px;
+        border-radius: 12px;
+        background: #102a25;
+        color: var(--good);
+        font-size: 10px;
+        line-height: 1.45;
+      }
+      .mini-btn {
+        border: 1px solid var(--line);
+        background: var(--card2);
+        color: var(--text);
+        padding: 7px 9px;
+        border-radius: 9px;
+        font-size: 10px;
+        font-weight: 850;
+      }
+      .review-busy {
+        opacity: 0.55;
+        pointer-events: none;
+      }
+      @media (max-width: 480px) {
+        .journal-grid {
+          grid-template-columns: 1fr;
+        }
+        .journal-grid .wide {
+          grid-column: auto;
+        }
+        .lab-scenarios {
+          grid-template-columns: 1fr 1fr;
+        }
+        .nav {
+          grid-template-columns: repeat(9, 1fr);
+        }
+      }
+
+      .header-actions {
+        display: flex;
+        align-items: center;
+        gap: 7px;
+      }
+      .learn-button {
+        border: 1px solid var(--line);
+        background: var(--card2);
+        color: var(--blue);
+        border-radius: 999px;
+        padding: 8px 10px;
+        font-size: 10px;
+        font-weight: 900;
+      }
+      .beginner-intro {
+        border: 1px solid #315f89;
+        background: linear-gradient(145deg, #102b42, #0c1d2d);
+        border-radius: 19px;
+        padding: 14px;
+      }
+      .beginner-intro-head {
+        display: flex;
+        align-items: flex-start;
+        justify-content: space-between;
+        gap: 10px;
+      }
+      .beginner-intro h2 {
+        margin: 4px 0 7px;
+        font-size: 18px;
+      }
+      .beginner-intro p {
+        margin: 0;
+        color: #b9cbe0;
+        font-size: 11px;
+        line-height: 1.55;
+      }
+      .beginner-concepts {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 6px;
+        margin-top: 10px;
+      }
+      .help-chip,
+      .term-help {
+        border: 1px solid #315f89;
+        background: #132e46;
+        color: var(--blue);
+        border-radius: 999px;
+        font-weight: 900;
+      }
+      .help-chip {
+        padding: 7px 9px;
+        font-size: 9px;
+      }
+      .term-help {
+        display: inline-grid;
+        place-items: center;
+        width: 18px;
+        height: 18px;
+        padding: 0;
+        margin-left: 5px;
+        font-size: 10px;
+        vertical-align: middle;
+      }
+      .onboarding {
+        border: 1px solid #80652c;
+        background: linear-gradient(145deg, #332b1b, #172234);
+      }
+      .onboarding-steps {
+        display: grid;
+        gap: 8px;
+        margin-top: 10px;
+      }
+      .onboarding-step {
+        display: grid;
+        grid-template-columns: 27px 1fr;
+        gap: 9px;
+        align-items: start;
+        padding: 9px;
+        border-radius: 12px;
+        background: #0e1c2ba8;
+      }
+      .onboarding-step b {
+        width: 27px;
+        height: 27px;
+        display: grid;
+        place-items: center;
+        border-radius: 9px;
+        background: #17395a;
+        color: var(--blue);
+      }
+      .onboarding-step strong {
+        display: block;
+        font-size: 11px;
+      }
+      .onboarding-step span {
+        display: block;
+        color: var(--muted);
+        font-size: 10px;
+        line-height: 1.45;
+        margin-top: 2px;
+      }
+      .onboarding-actions {
+        display: flex;
+        gap: 7px;
+        margin-top: 10px;
+      }
+      .onboarding-actions .btn {
+        flex: 1;
+        padding: 10px;
+      }
+      .learning-overlay {
+        position: fixed;
+        inset: 0;
+        z-index: 100;
+        display: flex;
+        align-items: flex-end;
+        justify-content: center;
+        background: #000a;
+        padding-top: env(safe-area-inset-top);
+      }
+      .learning-sheet {
+        width: min(760px, 100%);
+        max-height: 88vh;
+        overflow: auto;
+        background: #091421;
+        border: 1px solid var(--line);
+        border-radius: 24px 24px 0 0;
+        padding: 18px 16px calc(22px + env(safe-area-inset-bottom));
+        box-shadow: 0 -24px 70px #0009;
+      }
+      .learning-sheet-head {
+        position: sticky;
+        top: -18px;
+        z-index: 2;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        gap: 10px;
+        padding: 18px 0 11px;
+        background: #091421f2;
+        backdrop-filter: blur(18px);
+      }
+      .learning-sheet-head h2 {
+        margin: 0;
+        font-size: 22px;
+      }
+      .close-help {
+        border: 0;
+        background: var(--card2);
+        color: var(--text);
+        width: 36px;
+        height: 36px;
+        border-radius: 12px;
+        font-size: 20px;
+      }
+      .definition {
+        padding: 13px;
+        border: 1px solid var(--line);
+        background: var(--card);
+        border-radius: 16px;
+        margin-top: 10px;
+      }
+      .definition h3 {
+        margin: 0 0 6px;
+        font-size: 15px;
+      }
+      .definition p {
+        margin: 5px 0;
+        color: #bdcce0;
+        font-size: 11px;
+        line-height: 1.55;
+      }
+      .definition .example {
+        color: var(--good);
+      }
+      .definition .caution {
+        color: var(--warn);
+      }
+      .glossary-list {
+        display: grid;
+        gap: 8px;
+      }
+      .glossary-list details {
+        border: 1px solid var(--line);
+        background: var(--card);
+        border-radius: 14px;
+        padding: 11px 12px;
+      }
+      .glossary-list summary {
+        color: var(--text);
+        font-size: 12px;
+        font-weight: 900;
+        cursor: pointer;
+      }
+      .glossary-list p {
+        color: var(--muted);
+        font-size: 10px;
+        line-height: 1.5;
+      }
+      .learning-note {
+        padding: 10px 11px;
+        background: #132e46;
+        border-radius: 12px;
+        color: #b9cbe0;
+        font-size: 10px;
+        line-height: 1.5;
+        margin-top: 9px;
+      }
+      .switch-row {
+        display: flex;
+        align-items: center;
+        gap: 10px;
+        padding: 12px;
+        border: 1px solid var(--line);
+        border-radius: 14px;
+        background: var(--card2);
+      }
+      .switch-row input {
+        width: 22px;
+        height: 22px;
+      }
+      .switch-row strong {
+        display: block;
+        font-size: 12px;
+      }
+      .switch-row span {
+        display: block;
+        color: var(--muted);
+        font-size: 10px;
+        margin-top: 3px;
+        line-height: 1.4;
+      }
+      .screen-purpose {
+        color: var(--good);
+        font-size: 9px;
+        font-weight: 900;
+        text-transform: uppercase;
+        letter-spacing: 0.08em;
+      }
+      @media (max-width: 430px) {
+        .status {
+          display: none;
+        }
+        .learn-button {
+          padding: 8px 9px;
+        }
+        .beginner-intro-head {
+          display: block;
+        }
+        .beginner-intro-head .help-chip {
+          margin-top: 8px;
+        }
+        .onboarding-actions {
+          display: grid;
+        }
+        .learning-sheet {
+          max-height: 92vh;
+        }
+      }
+    </style>
+  </head>
+  <body>
+    <div class="app">
+      <header class="top">
+        <div>
+          <div class="brand">MarketLab</div>
+          <div class="sub">Private cloud paper trading lab · v2.0.0</div>
+        </div>
+        <div class="header-actions">
+          <button id="learnButton" class="learn-button" type="button">? Learn</button>
+          <a class="learn-button" href="/import" style="text-decoration:none">⇅ Data</a>
+          <a class="learn-button" href="/logout" style="text-decoration:none">Log out</a>
+          <div id="backendStatus" class="status">● Checking</div>
+        </div>
+      </header>
+      <main class="content">
+        <div class="banner">
+          <b>Beginner-friendly paper trading school.</b> Every screen includes
+          simple explanations and a glossary. Nothing here is financial advice,
+          no real money is used, and MarketLab never executes a brokerage trade.
+        </div>
+        <div id="tabs" class="tabs"></div>
+        <div id="message"></div>
+        <div id="view"></div>
+      </main>
+      <nav id="nav" class="nav"></nav>
+    </div>
+    <script src="/history.js"></script>
+    <script src="/trading.js"></script>
+    <script src="/performance.js"></script>
+    <script src="/insights.js"></script>
+    <script>
+      const tabs = [
+        ["overview", "⌂", "Overview"],
+        ["performance", "↗", "Performance"],
+        ["trade", "＄", "Trade"],
+        ["strategy", "⌁", "Strategy"],
+        ["research", "⌕", "Research"],
+        ["ai", "✦", "AI Coach"],
+        ["lab", "◈", "Decision Lab"],
+        ["journal", "▤", "Journal"],
+        ["settings", "⚙", "Settings"],
+      ];
+      const BEGINNER_GUIDES = {
+        overview: {
+          title: "Your portfolio at a glance",
+          purpose:
+            "Understand whether your open simulations are currently gaining or losing.",
+          body: "Start with Net simulation P/L. Then look at each position and its P/L. Exposure tells you how large your market bets are, not how much cash you own.",
+          terms: ["pnl", "position", "gross-exposure"],
+        },
+        performance: {
+          title: "How your result changed over time",
+          purpose:
+            "Connect portfolio movement with the dates you bought and sold.",
+          body: "Choose Balance for your overall simulated result, Cash for money paid or received, and Exposure for the size of your open positions. Tap or drag on the graph for exact values.",
+          terms: ["balance", "cash-flow", "exposure"],
+        },
+        trade: {
+          title: "Practice buying and selling",
+          purpose: "Learn how an order changes a long or short position.",
+          body: "Load a current quote, choose Buy or Sell, enter the number of shares, and write why you are making the decision. Selling when you own nothing opens a short position in this simulator.",
+          terms: ["buy", "short", "execution-price"],
+        },
+        strategy: {
+          title: "Test a rule on old prices",
+          purpose:
+            "See how a mechanical strategy would have behaved historically.",
+          body: "A backtest applies fixed rules to past data. It is useful for learning, but it can look successful by chance and does not predict future returns.",
+          terms: ["backtest", "sma", "drawdown"],
+        },
+        research: {
+          title: "Read basic risk statistics",
+          purpose: "Describe how the selected stock moved in the past.",
+          body: "Volatility measures how widely returns moved. Drawdown measures a fall from a previous peak. Neither tells you what will happen next.",
+          terms: ["volatility", "drawdown", "data-freshness"],
+        },
+        ai: {
+          title: "Ask for an educational second opinion",
+          purpose:
+            "Turn loaded numbers into questions and risks to investigate.",
+          body: "The AI Coach only knows the data supplied by MarketLab. Treat suggestions as study prompts, not instructions to buy or sell.",
+          terms: ["ai-confidence", "thesis", "risk"],
+        },
+        lab: {
+          title: "Test before recording a trade",
+          purpose: "Explore a decision without changing your portfolio.",
+          body: "The What-if Lab estimates exposure and possible gains or losses. Portfolio X-Ray highlights concentration and historical relationships between holdings.",
+          terms: ["concentration", "beta", "correlation"],
+        },
+        journal: {
+          title: "Learn from your decisions",
+          purpose: "Record what you believed before checking the outcome.",
+          body: "A useful journal separates decision quality from luck. Write a clear thesis and what evidence would prove it wrong.",
+          terms: ["thesis", "invalidation", "realized-pnl"],
+        },
+        settings: {
+          title: "Control data and simulation assumptions",
+          purpose:
+            "Understand where prices come from and how simulated fills are calculated.",
+          body: "Commission is a fixed order cost. Slippage changes the simulated fill slightly from the displayed quote. Your API keys stay in encrypted Cloudflare secrets, while trades and journals are stored in the private D1 database.",
+          terms: ["commission", "slippage", "current-quote"],
+        },
+      };
+      const GLOSSARY = {
+        start: {
+          title: "How to use MarketLab",
+          simple:
+            "MarketLab is a learning simulator. A simple path is: load a quote, write a reason, place a paper trade, watch the result, and review whether your reasoning was sound.",
+          example:
+            "Example: Load KLAC, simulate buying 1 share, then use Performance to see how the result changes.",
+          caution:
+            "No result or AI suggestion is a promise of future performance.",
+        },
+        pnl: {
+          title: "P/L — profit or loss",
+          simple:
+            "P/L is the amount your simulation has gained or lost. A positive number is a gain; a negative number is a loss.",
+          example:
+            "Buy at $100 and current price $110: P/L is about +$10 per share before fees.",
+          caution: "Open-position P/L can change until the position is closed.",
+        },
+        "realized-pnl": {
+          title: "Realized P/L",
+          simple:
+            "Profit or loss from the portion of a position that you already closed.",
+          example:
+            "Buy at $100 and sell at $110: the $10 gain becomes realized.",
+          caution: "Fees reduce realized P/L.",
+        },
+        "unrealized-pnl": {
+          title: "Unrealized P/L",
+          simple: "The current gain or loss on a position that is still open.",
+          example:
+            "You bought at $100 and the quote is $95: unrealized P/L is about -$5 per share.",
+          caution: "It is only an estimate until you close the position.",
+        },
+        position: {
+          title: "Position",
+          simple:
+            "The number of shares you currently hold long or short in the simulation.",
+          example:
+            "+3 shares is a long position; -3 shares is a short position.",
+          caution:
+            "MarketLab allows unlimited simulation, so it does not stop you because of insufficient cash.",
+        },
+        buy: {
+          title: "Buy",
+          simple:
+            "A buy adds shares to a long position or reduces an existing short position.",
+          example:
+            "If you are short 2 shares and buy 1, you remain short 1 share.",
+          caution:
+            "A buy is not automatically a good decision because a price recently rose.",
+        },
+        long: {
+          title: "Long position",
+          simple:
+            "You benefit when the stock price rises and lose when it falls.",
+          example:
+            "Buy 2 shares at $100; at $110 the position is up about $20.",
+          caution: "A stock can lose most or all of its value.",
+        },
+        short: {
+          title: "Short position",
+          simple:
+            "You simulate selling borrowed shares first and hope to buy them back later at a lower price.",
+          example:
+            "Short at $100 and cover at $90: gain is about $10 per share.",
+          caution: "Short losses can keep growing when the price rises.",
+        },
+        "gross-exposure": {
+          title: "Gross exposure",
+          simple:
+            "The total absolute market value of all long and short positions.",
+          example: "$1,000 long plus $500 short equals $1,500 gross exposure.",
+          caution:
+            "High exposure means larger potential movement in both directions.",
+        },
+        exposure: {
+          title: "Exposure",
+          simple:
+            "How much of your simulated portfolio is affected by market price changes.",
+          example: "10 shares at $200 create about $2,000 of exposure.",
+          caution: "Exposure is not the same as profit or cash.",
+        },
+        "long-exposure": {
+          title: "Long exposure",
+          simple:
+            "The market value of positions that benefit from rising prices.",
+          example: "5 shares priced at $100 create $500 long exposure.",
+          caution:
+            "Several stocks in one sector may behave like one concentrated bet.",
+        },
+        "short-exposure": {
+          title: "Short exposure",
+          simple:
+            "The absolute market value of positions that benefit from falling prices.",
+          example: "Short 4 shares at $50 creates $200 short exposure.",
+          caution:
+            "Short positions can have very large losses when prices rise.",
+        },
+        "cash-flow": {
+          title: "Net cash flow",
+          simple:
+            "Cash received from sells minus cash spent on buys and fees in the simulation.",
+          example:
+            "Buy for $100, then sell for $120: net cash flow becomes +$20.",
+          caution:
+            "Negative cash flow is allowed because this app uses unlimited simulation mode.",
+        },
+        balance: {
+          title: "Simulation balance",
+          simple:
+            "MarketLab's net simulated result from zero starting capital: cash flow plus the current signed value of positions.",
+          example:
+            "This lets you track gains and losses without choosing a starting account value.",
+          caution: "It is not a real bank or brokerage balance.",
+        },
+        "current-quote": {
+          title: "Current quote",
+          simple:
+            "The latest price returned by the configured current-price provider.",
+          example: "Twelve Data may provide the latest available KLAC quote.",
+          caution:
+            "Provider delays, exchange coverage, and market hours can make it differ from another app.",
+        },
+        "previous-close": {
+          title: "Previous close",
+          simple:
+            "The final regular-session price from the previous trading day.",
+          example:
+            "Today's change is commonly measured against yesterday's close.",
+          caution: "After-hours movement may not be included.",
+        },
+        "price-change": {
+          title: "Price change",
+          simple:
+            "The difference between the current quote and the previous close, shown in dollars and percent.",
+          example: "$102 versus $100 previous close is +$2 or +2%.",
+          caution: "A one-day move alone does not explain why a stock moved.",
+        },
+        "data-freshness": {
+          title: "Data freshness",
+          simple:
+            "Tells you whether a price is current, delayed, cached, or end-of-day.",
+          example:
+            "A current quote is fresher than an end-of-day historical close.",
+          caution: "Always check the timestamp before judging a trade.",
+        },
+        "split-adjusted": {
+          title: "Split-adjusted price",
+          simple:
+            "Old prices are restated to the current share basis so a stock split does not look like a crash.",
+          example:
+            "After a 10-for-1 split, an old $1,000 price is displayed as about $100.",
+          caution:
+            "Adjustment improves comparison but does not change the real economic return.",
+        },
+        "period-return": {
+          title: "Period return",
+          simple:
+            "The percentage change from the first visible price to the last visible price in the selected range.",
+          example: "$100 to $110 equals +10%.",
+          caution:
+            "It ignores your personal entry date unless the chart specifically uses your trade.",
+        },
+        high: {
+          title: "High",
+          simple: "The highest displayed price in the selected time range.",
+          example: "If the stock reached $125 during 3M, the 3M high is $125.",
+          caution: "A previous high is not a guaranteed future target.",
+        },
+        low: {
+          title: "Low",
+          simple: "The lowest displayed price in the selected time range.",
+          example: "If the stock touched $80 during 3M, the 3M low is $80.",
+          caution: "A previous low does not guarantee support.",
+        },
+        quantity: {
+          title: "Quantity",
+          simple:
+            "How many shares the simulated order contains. Fractional shares such as 0.5 are allowed.",
+          example: "Quantity 2.5 means two and a half shares.",
+          caution:
+            "Larger quantity increases both possible gain and possible loss.",
+        },
+        "entry-price": {
+          title: "Entry price",
+          simple:
+            "The price used to open the part of a long or short position connected to this trade result.",
+          example: "A long trade bought at $100 has an entry price of $100.",
+          caution:
+            "When several orders are matched, MarketLab may show a FIFO weighted matched entry price.",
+        },
+        "exit-price": {
+          title: "Exit price",
+          simple: "The price used to close all or part of a position.",
+          example: "Buy at $100 and sell at $108: the exit price is $108.",
+          caution:
+            "A partially closed position still has an open portion whose P/L can change.",
+        },
+        "position-after": {
+          title: "Position after trade",
+          simple:
+            "The signed number of shares left after this order was applied.",
+          example:
+            "Long 2 shares, then sell 3: position after is -1, which means short 1 share.",
+          caution:
+            "Crossing through zero can combine realized P/L with a new open position.",
+        },
+        "execution-price": {
+          title: "Execution price",
+          simple:
+            "The price MarketLab records for the simulated fill after applying slippage.",
+          example:
+            "Displayed quote $100 with 0.05% buy slippage records about $100.05.",
+          caution:
+            "A real market order can fill differently, especially in fast or illiquid markets.",
+        },
+        commission: {
+          title: "Commission",
+          simple: "A fixed simulated fee charged for each order.",
+          example: "$1 commission reduces trade P/L by $1.",
+          caution:
+            "Real brokers may also have regulatory, exchange, currency, or spread costs.",
+        },
+        slippage: {
+          title: "Slippage",
+          simple:
+            "The difference between the visible quote and the simulated execution price.",
+          example: "A 0.0005 rate equals 0.05%.",
+          caution:
+            "Real slippage can be much larger in volatile or thinly traded stocks.",
+        },
+        thesis: {
+          title: "Trade thesis",
+          simple: "A clear, testable reason you think a trade may work.",
+          example:
+            "Orders may recover over two quarters; I will reassess if orders continue falling.",
+          caution: "Avoid vague reasons such as 'the stock should go up.'",
+        },
+        invalidation: {
+          title: "Invalidation",
+          simple:
+            "Evidence or a price level that would show your original idea is probably wrong.",
+          example:
+            "My thesis is invalid if revenue guidance falls for two consecutive quarters.",
+          caution:
+            "Invalidation is not the same as a guaranteed stop-loss fill.",
+        },
+        benchmark: {
+          title: "Benchmark",
+          simple:
+            "A simple alternative used to judge whether your stock selection added value.",
+          example: "Compare a KLAC trade with SPY or QQQ over the same dates.",
+          caution:
+            "Benchmarks have different risks and may not be a perfect comparison.",
+        },
+        backtest: {
+          title: "Backtest",
+          simple:
+            "A simulation that applies fixed trading rules to historical prices.",
+          example:
+            "Buy when SMA 10 crosses above SMA 30, then test the result on old data.",
+          caution:
+            "Overfitting and missing costs can make a backtest look better than reality.",
+        },
+        sma: {
+          title: "Simple moving average (SMA)",
+          simple: "The average closing price over a chosen number of days.",
+          example: "SMA 10 averages the latest 10 closes.",
+          caution:
+            "Moving averages react after prices move; they do not predict the future.",
+        },
+        volatility: {
+          title: "Volatility",
+          simple:
+            "A historical estimate of how widely returns moved up and down.",
+          example:
+            "Higher volatility usually means a wider range of possible short-term outcomes.",
+          caution: "Low past volatility can rise suddenly.",
+        },
+        drawdown: {
+          title: "Drawdown",
+          simple:
+            "The percentage fall from a previous peak to a later low or current value.",
+          example: "$100 down to $75 is a 25% drawdown.",
+          caution: "Recovering from a 50% drawdown requires a 100% gain.",
+        },
+        concentration: {
+          title: "Concentration",
+          simple:
+            "How much of total exposure comes from one company or closely related group.",
+          example:
+            "One stock representing 60% of exposure is highly concentrated.",
+          caution:
+            "Different ticker symbols can still share the same sector risk.",
+        },
+        beta: {
+          title: "Beta versus SPY",
+          simple:
+            "A historical estimate of how strongly the portfolio moved with the broad US stock market.",
+          example:
+            "Beta 1.2 means it historically moved about 20% more than SPY on average, but not every day.",
+          caution: "Beta changes over time and is not a loss limit.",
+        },
+        correlation: {
+          title: "Correlation",
+          simple:
+            "A number from -1 to +1 describing how two return series moved together historically.",
+          example: "+0.9 means they often moved in the same direction.",
+          caution: "Correlations can change sharply during market stress.",
+        },
+        diversification: {
+          title: "Diversification score",
+          simple:
+            "A simplified score based mainly on how evenly exposure is spread among positions.",
+          example:
+            "Several similarly sized positions score better than one dominant position.",
+          caution: "Equal weights do not guarantee true diversification.",
+        },
+        "ai-confidence": {
+          title: "AI confidence",
+          simple:
+            "How strongly the AI supports its own educational summary given the available inputs.",
+          example:
+            "Low confidence may mean missing history, stale quotes, or mixed signals.",
+          caution: "It is not a probability that a stock will rise.",
+        },
+        risk: {
+          title: "Risk",
+          simple:
+            "The possibility that the outcome differs from what you expect, including losing money in the simulation.",
+          example:
+            "Concentration, volatility, stale data, and a weak thesis are different types of risk.",
+          caution: "No model can list every future risk.",
+        },
+      };
+      const TERM_ALIASES = {
+        "net simulation p/l": "pnl",
+        "p/l": "pnl",
+        unrealized: "unrealized-pnl",
+        "realized p/l": "realized-pnl",
+        "gross exposure": "gross-exposure",
+        "net cash flow": "cash-flow",
+        "long exposure": "long-exposure",
+        "short exposure": "short-exposure",
+        "current quote": "current-quote",
+        "previous close": "previous-close",
+        "market time": "data-freshness",
+        "price history": "split-adjusted",
+        "split-adjusted closing price": "split-adjusted",
+        "period return": "period-return",
+        high: "high",
+        low: "low",
+        symbol: "position",
+        "fractional quantity": "quantity",
+        quantity: "quantity",
+        "bought at": "entry-price",
+        "opened at": "entry-price",
+        "sold at": "exit-price",
+        "covered at": "exit-price",
+        "current price": "current-quote",
+        "position after": "position-after",
+        "execution price": "execution-price",
+        "commission per order (usd)": "commission",
+        "slippage rate (decimal)": "slippage",
+        "why are you making this trade?": "thesis",
+        "expected holding period": "thesis",
+        "target price": "thesis",
+        "invalidation price": "invalidation",
+        "confidence (0–100)": "ai-confidence",
+        "notes / evidence": "thesis",
+        benchmark: "benchmark",
+        "strategy engine": "backtest",
+        "final equity": "backtest",
+        trades: "backtest",
+        "annualized volatility": "volatility",
+        "drawdown from loaded peak": "drawdown",
+        "diversification score": "diversification",
+        "company concentration": "concentration",
+        "projected gross exposure": "gross-exposure",
+        "beta vs spy": "beta",
+        "strongest loaded correlations": "correlation",
+        "chart metric": "balance",
+        balance: "balance",
+        cash: "cash-flow",
+        exposure: "exposure",
+        "range change": "pnl",
+        "change %": "pnl",
+        "order notional": "exposure",
+        "position after": "position",
+        "ai coach": "ai-confidence",
+      };
+      const money = (n) =>
+        new Intl.NumberFormat("en-US", {
+          style: "currency",
+          currency: "USD",
+          maximumFractionDigits: 2,
+        }).format(n || 0);
+      const num = (n) =>
+        new Intl.NumberFormat("en-US", { maximumFractionDigits: 4 }).format(
+          n || 0,
+        );
+      const signedMoney = (n) =>
+        `${Number(n) > 0 ? "+" : ""}${money(Number(n) || 0)}`;
+      const signedPercent = (n) =>
+        `${Number(n) > 0 ? "+" : ""}${(Number(n) || 0).toFixed(2)}%`;
+      const uid = () =>
+        crypto.randomUUID?.() || Math.random().toString(36).slice(2);
+      const $ = (s) => document.querySelector(s);
+      const esc = (value) =>
+        String(value ?? "").replace(
+          /[&<>"']/g,
+          (ch) =>
+            ({
+              "&": "&amp;",
+              "<": "&lt;",
+              ">": "&gt;",
+              '"': "&quot;",
+              "'": "&#39;",
+            })[ch],
+        );
+      let backendHealth = {
+          aiMode: "local",
+          aiConfigured: false,
+          aiModel: "local-rules-v1",
+          tradeCount: 0,
+          tradeReviewCount: 0,
+          keysPersisted: false,
+        },
+        aiBusy = false,
+        reviewBusy = "";
+      const fresh = () => ({
+        version: 12,
+        tab: "overview",
+        symbol: "KLAC",
+        side: "buy",
+        qty: "1",
+        boardQty: "1",
+        historyRange: "3M",
+        performanceRange: "3M",
+        performanceMetric: "balance",
+        performanceSymbol: "ALL",
+        cash: 0,
+        positions: [],
+        trades: [],
+        watchlist: ["KLAC", "AAPL", "MSFT", "NVDA", "SPY", "QQQ"],
+        quotes: {},
+        history: {},
+        splits: {},
+        splitStatus: {},
+        journal: [],
+        aiResult: null,
+        aiQuestion: "",
+        tradeDraft: {
+          thesis: "",
+          expectedHolding: "",
+          targetPrice: "",
+          invalidationPrice: "",
+          confidence: "60",
+          notes: "",
+        },
+        tradeReviews: {},
+        whatIf: { symbol: "KLAC", side: "buy", quantity: "1" },
+        onboardingDismissed: false,
+        settings: { commission: 0, slippage: 0.0005, beginnerMode: true },
+      });
+      let state = fresh();
+      async function api(path, options) {
+        const r = await fetch(path, options);
+        const j = await r.json();
+        if (!r.ok) throw new Error(j.error || "Request failed");
+        return j;
+      }
+      async function boot() {
+        try {
+          const h = await api("/api/health");
+          backendHealth = h;
+          $("#backendStatus").textContent = "● Backend online";
+          $("#backendStatus").classList.add("online");
+          const saved = await api("/api/state");
+          if (saved.state && Object.keys(saved.state).length)
+            state = MarketLabTrading.migrateState(saved.state, fresh());
+          try {
+            const reviews = await api("/api/trade-reviews");
+            state.tradeReviews = {
+              ...(state.tradeReviews || {}),
+              ...(reviews.reviews || {}),
+            };
+          } catch {}
+          message(
+            `Cloudflare backend ${h.version} connected · ${h.tradeCount || 0} trades · ${h.tradeReviewCount || 0} saved AI reviews · AI ${h.aiConfigured ? "OpenAI" : "local"} mode.`,
+          );
+        } catch (e) {
+          $("#backendStatus").textContent = "● Backend offline";
+          message(String(e.message || e));
+        }
+        render();
+      }
+      let saveTimer;
+      function save() {
+        clearTimeout(saveTimer);
+        saveTimer = setTimeout(
+          () =>
+            api("/api/state", {
+              method: "POST",
+              headers: { "Content-Type": "application/json" },
+              body: JSON.stringify(state),
+            }).catch(() => {}),
+          180,
+        );
+      }
+      function message(text) {
+        $("#message").innerHTML = text
+          ? `<button class="msg" onclick="this.remove()"><span>${text}</span><b>×</b></button>`
+          : "";
+      }
+      function normalizedHelpText(value) {
+        return String(value || "")
+          .toLowerCase()
+          .replace(/\s+/g, " ")
+          .replace(/[:.]+$/, "")
+          .trim();
+      }
+      function resolveHelpKey(value) {
+        const text = normalizedHelpText(value);
+        if (TERM_ALIASES[text]) return TERM_ALIASES[text];
+        const entry = Object.entries(TERM_ALIASES).find(([label]) =>
+          text.startsWith(label + " "),
+        );
+        return entry ? entry[1] : null;
+      }
+      function beginnerIntro(tab) {
+        const guide = BEGINNER_GUIDES[tab] || BEGINNER_GUIDES.overview;
+        return `<section class="beginner-intro"><div class="beginner-intro-head"><div><div class="screen-purpose">What this screen is for</div><h2>${guide.title}</h2><p><b>${guide.purpose}</b> ${guide.body}</p></div><button class="help-chip" data-help="screen:${tab}">Explain this screen</button></div><div class="beginner-concepts">${guide.terms.map((term) => `<button class="help-chip" data-help="${term}">${GLOSSARY[term]?.title || term}</button>`).join("")}<button class="help-chip" data-help="glossary">Open glossary</button></div></section>`;
+      }
+      function onboardingCard() {
+        if (state.onboardingDismissed) return "";
+        return `<section class="card onboarding"><div class="eyebrow">First time here?</div><h2>Your four-step practice loop</h2><p class="muted">Use this loop to learn decision-making rather than trying to guess the next price move.</p><div class="onboarding-steps"><div class="onboarding-step"><b>1</b><div><strong>Load a company</strong><span>Go to Trade and refresh a quote. Check the provider and timestamp.</span></div></div><div class="onboarding-step"><b>2</b><div><strong>Write your reason</strong><span>Record a thesis, target, and what would prove the idea wrong.</span></div></div><div class="onboarding-step"><b>3</b><div><strong>Place a paper trade</strong><span>No real money is used. Watch P/L and exposure change.</span></div></div><div class="onboarding-step"><b>4</b><div><strong>Review the decision</strong><span>Compare with SPY/QQQ and ask whether the reasoning—not only the outcome—was good.</span></div></div></div><div class="onboarding-actions"><button class="btn" data-go-tab="trade">Start in Trade</button><button id="dismissOnboarding" class="btn secondary">Got it</button></div></section>`;
+      }
+      function helpContent(key) {
+        if (key === "glossary") {
+          const entries = Object.entries(GLOSSARY)
+            .filter(([name]) => name !== "start")
+            .sort((a, b) => a[1].title.localeCompare(b[1].title));
+          return `<div class="learning-note">Tap any term to read a plain-language explanation, example, and important limitation.</div><div class="glossary-list">${entries.map(([name, item]) => `<details><summary>${item.title}</summary><p>${item.simple}</p><p class="example"><b>Example:</b> ${item.example}</p><p class="caution"><b>Remember:</b> ${item.caution}</p></details>`).join("")}</div>`;
+        }
+        if (String(key).startsWith("screen:")) {
+          const tab = String(key).split(":")[1],
+            guide = BEGINNER_GUIDES[tab] || BEGINNER_GUIDES.overview;
+          return `<div class="definition"><h3>${guide.title}</h3><p><b>Purpose:</b> ${guide.purpose}</p><p>${guide.body}</p></div><div class="beginner-concepts">${guide.terms.map((term) => `<button class="help-chip" data-help="${term}">${GLOSSARY[term]?.title || term}</button>`).join("")}</div>`;
+        }
+        const item = GLOSSARY[key] || GLOSSARY.start;
+        return `<div class="definition"><h3>${item.title}</h3><p>${item.simple}</p><p class="example"><b>Example:</b> ${item.example}</p><p class="caution"><b>Remember:</b> ${item.caution}</p></div>`;
+      }
+      function openHelp(key = "start") {
+        document.querySelector("#learningOverlay")?.remove();
+        const title =
+          key === "glossary"
+            ? "Beginner glossary"
+            : String(key).startsWith("screen:")
+              ? "Screen guide"
+              : GLOSSARY[key]?.title || "MarketLab learning guide";
+        document.body.insertAdjacentHTML(
+          "beforeend",
+          `<div id="learningOverlay" class="learning-overlay"><section class="learning-sheet" role="dialog" aria-modal="true" aria-label="${esc(title)}"><div class="learning-sheet-head"><div><div class="eyebrow">Beginner learning mode</div><h2>${esc(title)}</h2></div><button class="close-help" data-close-help aria-label="Close">×</button></div>${helpContent(key)}<div class="learning-note"><b>Educational only:</b> MarketLab is a paper-trading simulator. It does not know your full financial situation and does not provide personalized investment advice.</div></section></div>`,
+        );
+        bindLearningActions();
+      }
+      function decorateBeginnerTerms() {
+        if (!state.settings?.beginnerMode) return;
+        const selector =
+          ".metric > span:first-child,.history-summary span,.performance-summary span,.field > label,.eyebrow,.trade-prices span";
+        document.querySelectorAll(selector).forEach((element) => {
+          if (element.querySelector(".term-help")) return;
+          const key = resolveHelpKey(element.textContent);
+          if (!key || !GLOSSARY[key]) return;
+          element.insertAdjacentHTML(
+            "beforeend",
+            `<button type="button" class="term-help" data-help="${key}" aria-label="Explain ${esc(GLOSSARY[key].title)}">?</button>`,
+          );
+        });
+      }
+      function bindLearningActions() {
+        if ($("#learnButton"))
+          $("#learnButton").onclick = () => openHelp("start");
+        document.querySelectorAll("[data-help]").forEach((button) => {
+          button.onclick = (event) => {
+            event.preventDefault();
+            event.stopPropagation();
+            openHelp(button.dataset.help);
+          };
+        });
+        document
+          .querySelectorAll("[data-close-help]")
+          .forEach(
+            (button) =>
+              (button.onclick = () =>
+                document.querySelector("#learningOverlay")?.remove()),
+          );
+        const overlay = $("#learningOverlay");
+        if (overlay)
+          overlay.onclick = (event) => {
+            if (event.target === overlay) overlay.remove();
+          };
+        document.querySelectorAll("[data-go-tab]").forEach(
+          (button) =>
+            (button.onclick = () => {
+              state.tab = button.dataset.goTab;
+              save();
+              render();
+            }),
+        );
+        $("#dismissOnboarding")?.addEventListener("click", () => {
+          state.onboardingDismissed = true;
+          save();
+          render();
+        });
+        $("#restartTour")?.addEventListener("click", () => {
+          state.onboardingDismissed = false;
+          state.tab = "overview";
+          save();
+          render();
+        });
+        $("#beginnerMode")?.addEventListener("change", (event) => {
+          state.settings = {
+            ...(state.settings || {}),
+            beginnerMode: event.target.checked,
+          };
+          save();
+          render();
+        });
+      }
+      function portfolioMetrics() {
+        return MarketLabTrading.metrics(state);
+      }
+      function total() {
+        return portfolioMetrics().netResult;
+      }
+      function pnl() {
+        return portfolioMetrics().unrealized;
+      }
+      function chart(points) {
+        if (!points || points.length < 2)
+          return '<div class="empty">Load history to see a chart.</div>';
+        const v = points.slice(-120),
+          min = Math.min(...v),
+          max = Math.max(...v),
+          r = max - min || 1,
+          w = 600,
+          h = 150,
+          path = v
+            .map(
+              (x, i) =>
+                `${i ? "L" : "M"} ${(i / (v.length - 1)) * w} ${h - 8 - ((x - min) / r) * (h - 16)}`,
+            )
+            .join(" "),
+          encoded = encodeURIComponent(JSON.stringify(v));
+        return `<div class="generic-chart" data-chart-values="${encoded}" data-chart-label="Strategy equity"><svg class="chart" viewBox="0 0 ${w} ${h}"><path d="${path}" fill="none" stroke="currentColor" stroke-width="4"/><path d="${path} L ${w} ${h} L 0 ${h}Z" fill="currentColor" opacity=".1"/></svg><div class="chart-crosshair"></div><div class="chart-dot"></div><div class="chart-tooltip"><strong></strong><span></span></div></div><div class="chart-help">Tap or drag to inspect an exact value. The line shows how the selected measure changed from left (older) to right (newer).</div>`;
+      }
+      function priceHistory(rows, splits, status) {
+        if (!rows || rows.length < 2)
+          return '<section class="card"><div class="empty">Load market data to view price history.</div></section>';
+        const range = MarketLabHistory.normalizeRange(state.historyRange),
+          summary = MarketLabHistory.stats(rows, range, splits),
+          v = summary.rows,
+          w = 640,
+          h = 238,
+          pad = { left: 52, right: 12, top: 15, bottom: 31 },
+          g = MarketLabHistory.geometry(v, w, h, pad),
+          negative = summary.change < 0,
+          area = `${g.path} L ${g.points.at(-1).x.toFixed(2)} ${(h - pad.bottom).toFixed(2)} L ${g.points[0].x.toFixed(2)} ${(h - pad.bottom).toFixed(2)} Z`,
+          ticks = [0, 0.25, 0.5, 0.75, 1]
+            .map((f) => {
+              const y = pad.top + f * (h - pad.top - pad.bottom),
+                value = g.max - f * (g.max - g.min);
+              return `<line class="history-grid" x1="${pad.left}" x2="${w - pad.right}" y1="${y}" y2="${y}"/><text class="history-axis-label" x="2" y="${y + 3}">${money(value)}</text>`;
+            })
+            .join(""),
+          markers = MarketLabHistory.markerGeometry(v, summary.splits, w, pad),
+          markerSvg = markers
+            .map(
+              (m) =>
+                `<line class="split-marker" x1="${m.x.toFixed(2)}" x2="${m.x.toFixed(2)}" y1="${pad.top}" y2="${h - pad.bottom}"/><circle class="split-marker-dot" cx="${m.x.toFixed(2)}" cy="${pad.top + 8}" r="5"/>`,
+            )
+            .join(""),
+          mid = v[Math.floor(v.length / 2)],
+          coverage = !summary.complete
+            ? `<div class="coverage-note">${range} requested, but only ${rows.length} daily points (${Math.max(0, summary.availableDays)} calendar days) are currently available. The free Alpha Vantage compact feed returns up to 100 points; the chart is showing all available history.</div>`
+            : "",
+          splitCards = summary.splits.length
+            ? `<div class="split-events">${summary.splits.map((event) => `<div class="split-event"><span>${event.effectiveDate}</span><strong>${MarketLabHistory.splitRatioLabel(event.factor)}</strong></div>`).join("")}</div>`
+            : "",
+          splitWarning =
+            status === "unavailable" || status === "stale"
+              ? `<div class="split-warning">Split metadata is ${status}. The quote is valid, but the chart cannot guarantee split adjustment until the SPLITS feed refreshes successfully.</div>`
+              : "";
+        return `<section class="card history-card"><div class="history-head"><div><div class="eyebrow">Price history</div><h2>Split-adjusted closing price</h2>${summary.adjusted || summary.splits.length ? '<span class="adjusted-badge">✓ Adjusted to current share basis</span>' : ""}</div><div class="range-tabs">${["1M", "3M", "1Y"].map((x) => `<button data-range="${x}" class="${range === x ? "active" : ""}">${x}</button>`).join("")}</div></div><div class="history-summary"><div><span>Period return</span><strong class="${negative ? "bad" : "good"}">${summary.change >= 0 ? "+" : ""}${summary.changePercent.toFixed(2)}%</strong></div><div><span>Start</span><strong>${money(summary.start)}</strong></div><div><span>High</span><strong>${money(summary.high)}</strong></div><div><span>Low</span><strong>${money(summary.low)}</strong></div></div><div id="historyCanvas" class="history-canvas"><svg id="historySvg" class="history-svg" viewBox="0 0 ${w} ${h}" preserveAspectRatio="none" aria-label="${range} split-adjusted closing price chart">${ticks}<path class="history-area ${negative ? "negative" : ""}" d="${area}"/><path class="history-line ${negative ? "negative" : ""}" d="${g.path}"/>${markerSvg}</svg><div id="chartCrosshair" class="chart-crosshair"></div><div id="chartDot" class="chart-dot"></div><div id="chartTooltip" class="chart-tooltip"><strong></strong><span></span></div></div><div class="history-footer"><span>${v[0].date}</span><span>${mid.date}</span><span>${v.at(-1).date}</span></div>${state.settings?.beginnerMode ? '<div class="learning-note">Closing price is the final regular-session price for each day. Split adjustment makes prices before and after a stock split comparable. Tap or drag on the line for the exact date and value.</div>' : ""}${splitCards}${coverage}${splitWarning}</section>`;
+      }
+      function bindPriceHistory() {
+        document.querySelectorAll("[data-range]").forEach(
+          (button) =>
+            (button.onclick = () => {
+              state.historyRange = button.dataset.range;
+              save();
+              render();
+            }),
+        );
+        const canvas = $("#historyCanvas");
+        if (!canvas) return;
+        const rows = MarketLabHistory.filterRows(
+            state.history[state.symbol] || [],
+            state.historyRange,
+          ),
+          g = MarketLabHistory.geometry(rows, 640, 238, {
+            left: 52,
+            right: 12,
+            top: 15,
+            bottom: 31,
+          });
+        if (g.points.length < 2) return;
+        const cross = $("#chartCrosshair"),
+          dot = $("#chartDot"),
+          tip = $("#chartTooltip");
+        function inspect(event) {
+          const rect = canvas.getBoundingClientRect(),
+            relative = Math.max(
+              0,
+              Math.min(rect.width, event.clientX - rect.left),
+            ),
+            plotLeft = (52 / 640) * rect.width,
+            plotRight = (12 / 640) * rect.width,
+            plotWidth = rect.width - plotLeft - plotRight,
+            index = Math.max(
+              0,
+              Math.min(
+                g.points.length - 1,
+                Math.round(
+                  ((relative - plotLeft) / plotWidth) * (g.points.length - 1),
+                ),
+              ),
+            ),
+            point = g.points[index],
+            left = (point.x / 640) * rect.width,
+            top = (point.y / 238) * rect.height;
+          cross.style.display = dot.style.display = tip.style.display = "block";
+          cross.style.left = `${left}px`;
+          dot.style.left = `${left}px`;
+          dot.style.top = `${top}px`;
+          tip.querySelector("strong").textContent = money(point.value);
+          tip.querySelector("span").textContent =
+            `${new Date(point.date + "T00:00:00Z").toLocaleDateString()} · adjusted close`;
+          tip.style.left = `${Math.max(5, Math.min(rect.width - 142, left + (left > rect.width * 0.65 ? -140 : 10)))}px`;
+          tip.style.top = `${Math.max(5, top - 48)}px`;
+        }
+        canvas.addEventListener("pointerdown", inspect);
+        canvas.addEventListener("pointermove", (event) => {
+          if (event.pointerType === "mouse" || event.buttons) inspect(event);
+        });
+      }
+      function renderNav() {
+        const html = tabs
+          .map(
+            (x) =>
+              `<button data-tab="${x[0]}" class="${state.tab === x[0] ? "active" : ""}"><b>${x[1]}</b><span>${x[2]}</span></button>`,
+          )
+          .join("");
+        $("#tabs").innerHTML = html;
+        $("#nav").innerHTML = html;
+        document.querySelectorAll("[data-tab]").forEach(
+          (b) =>
+            (b.onclick = () => {
+              state.tab = b.dataset.tab;
+              save();
+              render();
+            }),
+        );
+      }
+      function overview() {
+        const m = portfolioMetrics();
+        return `<div class="stack"><section class="card hero"><div class="eyebrow">Net simulation P/L</div><h1 class="${m.netResult >= 0 ? "good" : "bad"}">${signedMoney(m.netResult)}</h1><div class="row"><span class="${m.unrealized >= 0 ? "good" : "bad"}">${signedMoney(m.unrealized)} unrealized</span><span class="muted">${m.positionCount} long/short positions</span></div>${chart((state.history[state.symbol] || []).map((x) => MarketLabHistory.priceValue(x)))}</section><div class="exposure-grid"><div class="metric"><span>Gross exposure</span><strong>${money(m.grossExposure)}</strong><span>Long + short market value</span></div><div class="metric"><span>Net cash flow</span><strong>${signedMoney(m.netCashFlow)}</strong><span>May be negative in unlimited mode</span></div><div class="metric"><span>Long exposure</span><strong class="good">${money(m.longExposure)}</strong><span>Positive positions</span></div><div class="metric"><span>Short exposure</span><strong class="bad">${money(m.shortExposure)}</strong><span>Absolute short market value</span></div></div><section class="card"><div class="eyebrow">Portfolio</div><h2>Long and short positions</h2>${
+          state.positions.length
+            ? `<div class="list">${state.positions
+                .map((p) => {
+                  const performance = MarketLabTrading.positionResult(
+                      p,
+                      state.quotes,
+                    ),
+                    price = performance.currentPrice,
+                    value = p.qty * price,
+                    side = p.qty > 0 ? "long" : "short";
+                  return `<div class="item"><div class="avatar">${p.symbol.slice(0, 3)}</div><div class="main"><strong>${p.symbol} <span class="position-side ${side}">${side.toUpperCase()}</span></strong><small><span class="signed-qty ${side}">${p.qty > 0 ? "+" : ""}${num(p.qty)}</span> shares · avg ${money(p.avg)}</small></div><div class="right"><strong>${money(value)}</strong><small class="position-pnl ${performance.value >= 0 ? "good" : "bad"}">${signedMoney(performance.value)} (${signedPercent(performance.percent)})</small></div></div>`;
+                })
+                .join("")}</div>`
+            : '<div class="empty">No simulated positions yet. Buy or sell any loaded symbol without a starting balance.</div>'
+        }</section></div>`;
+      }
+      async function loadMarket(symbolOverride, force = false) {
+        const s = String(symbolOverride || state.symbol)
+          .trim()
+          .toUpperCase();
+        state.symbol = s;
+        state.watchlist = MarketLabTrading.uniqueSymbols([
+          ...(state.watchlist || []),
+          s,
+        ]);
+        message(`Loading ${s} current quote, daily history, and split events…`);
+        try {
+          const data = await api(
+            "/api/market?symbol=" +
+              encodeURIComponent(s) +
+              (force ? "&force=1" : ""),
+          );
+          state.quotes[s] = data.quote;
+          state.history[s] = data.points;
+          state.splits[s] = data.splits || [];
+          state.splitStatus[s] = data.splitDataStatus || "unavailable";
+          save();
+          render();
+          const fallback = data.quoteFallbackReason
+            ? " Current quote provider was unavailable, so end-of-day history is shown."
+            : "";
+          message(
+            `${s} ${data.quote.freshness || "quote"} from ${data.quote.provider} at ${data.quote.marketDataAt}; ${data.points.length} daily candles and ${state.splits[s].length} split event(s) loaded.${fallback}`,
+          );
+        } catch (e) {
+          if (state.quotes[s]?.dataMode === "educational-demo") {
+            delete state.quotes[s];
+            delete state.history[s];
+            delete state.splits[s];
+            delete state.splitStatus[s];
+            save();
+            render();
+          }
+          message(
+            `${String(e.message || e)} No new provider quote was loaded.`,
+          );
+        }
+      }
+      async function refreshAll() {
+        const symbols = MarketLabTrading.uniqueSymbols(state.watchlist || []);
+        if (!symbols.length) return message("Add at least one company first.");
+        const button = $("#refreshAll");
+        button?.classList.add("busy");
+        button && (button.disabled = true);
+        let updated = 0;
+        const failures = [];
+        try {
+          for (let i = 0; i < symbols.length; i++) {
+            const symbol = symbols[i];
+            message(
+              `Refreshing ${symbol} from Twelve Data (${i + 1}/${symbols.length})…`,
+            );
+            try {
+              const data = await api(
+                "/api/quotes?symbols=" +
+                  encodeURIComponent(symbol) +
+                  "&force=1",
+              );
+              const quote = data.quotes && data.quotes[symbol];
+              if (!quote)
+                throw new Error(
+                  (data.errors && data.errors[symbol]) ||
+                    "No Twelve Data quote returned",
+                );
+              if (!String(quote.provider || "").includes("Twelve Data"))
+                throw new Error(
+                  "Unexpected provider: " + (quote.provider || "unknown"),
+                );
+              state.quotes[symbol] = quote;
+              updated++;
+              save();
+              render();
+            } catch (error) {
+              failures.push([symbol, String(error.message || error)]);
+            }
+            if (i < symbols.length - 1)
+              await new Promise((resolve) => setTimeout(resolve, 1100));
+          }
+          message(
+            `Updated ${updated} of ${symbols.length} companies directly from Twelve Data.${failures.length ? " Not updated: " + failures.map(([symbol, error]) => symbol + " (" + error + ")").join(", ") : ""}`,
+          );
+        } finally {
+          const current = $("#refreshAll");
+          current?.classList.remove("busy");
+          if (current) current.disabled = false;
+        }
+      }
+      function currentTradeJournal() {
+        const base = state.tradeDraft || {};
+        const journal = {
+          thesis: String($("#tradeThesis")?.value ?? base.thesis ?? "").trim(),
+          expectedHolding: String(
+            $("#expectedHolding")?.value ?? base.expectedHolding ?? "",
+          ).trim(),
+          targetPrice: String(
+            $("#targetPrice")?.value ?? base.targetPrice ?? "",
+          ).trim(),
+          invalidationPrice: String(
+            $("#invalidationPrice")?.value ?? base.invalidationPrice ?? "",
+          ).trim(),
+          confidence: String(
+            $("#tradeConfidence")?.value ?? base.confidence ?? "60",
+          ).trim(),
+          notes: String($("#tradeNotes")?.value ?? base.notes ?? "").trim(),
+        };
+        state.tradeDraft = journal;
+        return journal;
+      }
+      async function executeFor(symbol, side, quantity, journal = null) {
+        const q = state.quotes[symbol],
+          qty = Number(quantity);
+        if (!q || !qty || qty <= 0) {
+          message(`Load a quote for ${symbol} and enter a positive quantity.`);
+          return false;
+        }
+        const px =
+            q.price *
+            (side === "buy"
+              ? 1 + state.settings.slippage
+              : 1 - state.settings.slippage),
+          fee = Number(state.settings.commission) || 0;
+        try {
+          state = MarketLabTrading.applyTrade(state, {
+            id: uid(),
+            symbol,
+            side,
+            quantity: qty,
+            price: px,
+            fee,
+            provider: q.provider,
+            time: new Date().toISOString(),
+            journal,
+          });
+          const trade = state.trades[0];
+          try {
+            const saved = await api("/api/trades", {
+              method: "POST",
+              headers: { "Content-Type": "application/json" },
+              body: JSON.stringify({ trade }),
+            });
+            backendHealth.tradeCount =
+              saved.tradeCount || backendHealth.tradeCount;
+          } catch (e) {
+            save();
+            message(
+              `Trade is in local state but the standalone database could not confirm it yet: ${String(e.message || e)}`,
+            );
+            return false;
+          }
+          save();
+          render();
+          const position = state.positions.find((p) => p.symbol === symbol);
+          message(
+            `Simulated ${side} ${num(qty)} ${symbol} at ${money(px)}. Saved as standalone database row #${backendHealth.tradeCount}. Position is now ${position ? `${position.qty > 0 ? "long" : "short"} ${num(Math.abs(position.qty))}` : "flat"}.`,
+          );
+          return true;
+        } catch (e) {
+          message(String(e.message || e));
+          return false;
+        }
+      }
+      async function execute() {
+        const journal = currentTradeJournal(),
+          ok = await executeFor(state.symbol, state.side, state.qty, journal);
+        if (ok) {
+          state.tradeDraft = {
+            thesis: "",
+            expectedHolding: "",
+            targetPrice: "",
+            invalidationPrice: "",
+            confidence: "60",
+            notes: "",
+          };
+          save();
+          render();
+        }
+      }
+      function boardCard(symbol) {
+        const q = state.quotes[symbol],
+          p = state.positions.find((x) => x.symbol === symbol),
+          side = p ? (p.qty > 0 ? "long" : "short") : "flat",
+          performance = p
+            ? MarketLabTrading.positionResult(p, state.quotes)
+            : null;
+        return `<article class="ticker-card ${state.symbol === symbol ? "selected" : ""}"><div class="ticker-top"><button class="ticker-open" data-open-symbol="${symbol}"><span class="ticker-symbol">${symbol}</span></button><button class="ticker-remove" data-remove-symbol="${symbol}" aria-label="Remove ${symbol}">×</button></div>${q ? `<div class="ticker-price">${money(q.price)}</div><div class="ticker-change ${q.change >= 0 ? "good" : "bad"}">${q.change >= 0 ? "+" : ""}${q.change.toFixed(2)} (${q.changePercent.toFixed(2)}%)</div><div class="ticker-source">${q.freshness || "quote"} · ${q.provider}<br>${q.marketDataAt || ""}</div>` : `<div class="ticker-price">—</div><div class="ticker-change muted">Quote not loaded</div><div class="ticker-source">Use Refresh all to load current prices.</div>`}<div class="ticker-position"><span class="position-side ${side}">${side.toUpperCase()}</span><strong>${p ? `${p.qty > 0 ? "+" : ""}${num(p.qty)} sh` : "No position"}</strong></div>${performance ? `<div class="ticker-pnl ${performance.value >= 0 ? "good" : "bad"}">P/L ${signedMoney(performance.value)} · ${signedPercent(performance.percent)}</div>` : '<div class="ticker-pnl muted">P/L —</div>'}${q ? `<div class="quick-actions"><button class="quick-buy" data-quick-side="buy" data-symbol="${symbol}">Buy</button><button class="quick-sell" data-quick-side="sell" data-symbol="${symbol}">Sell</button></div>` : `<button class="btn secondary ticker-load" data-load-symbol="${symbol}">Load data</button>`}<button class="ticker-open" data-open-symbol="${symbol}">Open chart & order</button></article>`;
+      }
+      function tradingBoard() {
+        return `<section class="card"><div class="market-board-head"><div><div class="eyebrow">Multi-company board</div><h2>Trade several companies quickly</h2></div><button id="refreshAll" class="btn refresh-all">↻ Refresh all</button></div><div class="board-controls"><div class="field"><label>Add symbol</label><input id="boardSymbol" autocapitalize="characters" placeholder="e.g. AMD"></div><button id="addBoardSymbol" class="btn">Add</button></div><div class="field board-quantity"><label>Quick trade quantity</label><input id="boardQty" inputmode="decimal" value="${state.boardQty}"></div><div class="market-board">${(state.watchlist || []).map(boardCard).join("")}</div><div class="unlimited-note"><b>Unlimited simulation mode:</b> buys do not require cash, and sells can open or increase short positions. Every open company card shows P/L in dollars and percentage.</div></section>`;
+      }
+      function tradeResultRow(t) {
+        const matched = t.matchedEntryPrice ? money(t.matchedEntryPrice) : null,
+          current = money(t.currentPrice || t.price),
+          entryLabel =
+            t.side === "sell" && matched
+              ? "Bought at"
+              : t.side === "buy" && matched
+                ? "Short sold at"
+                : "Opened at",
+          entryValue = matched || money(t.price),
+          exitLabel =
+            t.closedQuantity > 0
+              ? t.side === "sell"
+                ? "Sold at"
+                : "Covered at"
+              : "Current price",
+          exitValue = t.closedQuantity > 0 ? money(t.price) : current,
+          j = t.journal || {},
+          hasJournal =
+            j.thesis ||
+            j.expectedHolding ||
+            j.targetPrice ||
+            j.invalidationPrice ||
+            j.notes,
+          bm = MarketLabInsights.benchmarkForTrade(t, state),
+          review = (state.tradeReviews || {})[t.id],
+          benchmarkHtml = bm.available
+            ? Object.entries(bm.benchmarks)
+                .map(
+                  ([symbol, item]) =>
+                    `<span class="benchmark-pill ${item.relativePercent >= 0 ? "outperform" : "underperform"}">${symbol} ${signedPercent(item.directionalReturnPercent)} · relative ${signedPercent(item.relativePercent)}</span>`,
+                )
+                .join("")
+            : '<span class="benchmark-pill">Load SPY/QQQ history for benchmark</span>',
+          journalHtml = hasJournal
+            ? `<div class="trade-thesis">${j.thesis ? `<b>Thesis:</b> ${esc(j.thesis)}<br>` : ""}${j.expectedHolding ? `<b>Horizon:</b> ${esc(j.expectedHolding)} · ` : ""}${j.confidence ? `<b>Confidence:</b> ${esc(j.confidence)}%<br>` : ""}${j.targetPrice ? `Target ${money(j.targetPrice)} · ` : ""}${j.invalidationPrice ? `Invalidation ${money(j.invalidationPrice)}` : ""}${j.notes ? `<br><b>Notes:</b> ${esc(j.notes)}` : ""}</div>`
+            : "",
+          reviewHtml = review
+            ? `<div class="review-box"><h3>${esc(review.decisionQuality || "Post-trade review")} · ${Number(review.preparationScore) || 0}% preparation</h3><div class="muted">${esc(review.summary || "")}</div>${review.warning ? `<div class="warning">${esc(review.warning)}</div>` : ""}<ul>${(
+                review.lessons || []
+              )
+                .slice(0, 3)
+                .map((x) => `<li>${esc(x)}</li>`)
+                .join("")}</ul></div>`
+            : "";
+        return `<div class="item"><div class="avatar">${t.side === "buy" ? "B" : "S"}</div><div class="main"><strong>${t.symbol} · ${num(t.qty)} ${t.side.toUpperCase()}</strong><small>${new Date(t.time).toLocaleString()} · position after ${num(t.positionAfter ?? 0)}</small><div class="trade-prices"><span>${entryLabel}: <b>${entryValue}</b></span><span>${exitLabel}: <b>${exitValue}</b></span><span>Execution price: <b>${money(t.price)}</b> · ${t.provider}</span></div>${t.fee ? `<div class="trade-fee">Fee ${money(t.fee)}</div>` : ""}${journalHtml}<div class="benchmark-row">${benchmarkHtml}</div>${t.closedQuantity > 0 ? `<div class="review-actions"><button class="mini-btn ${reviewBusy === t.id ? "review-busy" : ""}" data-trade-review="${esc(t.id)}">${reviewBusy === t.id ? "Reviewing…" : review ? "Refresh AI review" : "AI post-trade review"}</button></div>` : ""}${reviewHtml}</div><div class="trade-result"><strong class="${t.resultValue >= 0 ? "good" : "bad"}">${signedMoney(t.resultValue)}</strong><small class="${t.resultValue >= 0 ? "good" : "bad"}">${signedPercent(t.resultPercent)}</small><span class="result-kind">${t.statusLabel}</span></div></div>`;
+      }
+      function trade() {
+        const q = state.quotes[state.symbol],
+          hist = state.history[state.symbol] || [],
+          results = MarketLabTrading.tradeResults(state),
+          d = state.tradeDraft || {};
+        return `<div class="stack">${tradingBoard()}<section class="card"><div class="eyebrow">Selected company</div><h2>${state.symbol} trade details</h2><div class="two"><div class="field"><label>Symbol</label><input id="symbol" value="${state.symbol}" autocapitalize="characters"></div><button id="load" class="btn">Refresh selected</button></div>${q ? `<div class="quote"><div class="eyebrow">${q.freshness} · ${q.provider}</div><h1>${money(q.price)}</h1><div class="${q.change >= 0 ? "good" : "bad"}">${q.change >= 0 ? "+" : ""}${q.change.toFixed(2)} (${q.changePercent.toFixed(2)}%)</div><div class="muted" style="margin-top:7px">Market time: ${q.marketDataAt || "unknown"} · ${q.freshness || "historical"}</div><span class="provider-pill ${q.freshness === "end-of-day" ? "fallback" : ""}">${q.freshness === "end-of-day" ? "Historical fallback" : "Current quote"}</span></div>` : '<div class="empty">No quote loaded for the selected symbol.</div>'}</section>${q ? priceHistory(hist, state.splits[state.symbol] || [], state.splitStatus[state.symbol]) : ""}<section class="card"><div class="eyebrow">Unlimited paper order</div><h2>Buy, sell, or open a short</h2><div class="form"><div class="seg"><button data-side="buy" class="${state.side === "buy" ? "active buy" : ""}">Buy</button><button data-side="sell" class="${state.side === "sell" ? "active sell" : ""}">Sell / short</button></div><div class="field"><label>Fractional quantity</label><input id="qty" inputmode="decimal" value="${state.qty}"></div><details class="journal-panel" open><summary>Decision journal for this order</summary><div class="journal-grid"><div class="field wide"><label>Why are you making this trade?</label><textarea id="tradeThesis" rows="3" maxlength="2000" placeholder="Write a falsifiable thesis.">${esc(d.thesis || "")}</textarea></div><div class="field"><label>Expected holding period</label><input id="expectedHolding" value="${esc(d.expectedHolding || "")}" placeholder="Example: 3–6 months"></div><div class="field"><label>Confidence (0–100)</label><input id="tradeConfidence" inputmode="numeric" value="${esc(d.confidence || "60")}"></div><div class="field"><label>Target price</label><input id="targetPrice" inputmode="decimal" value="${esc(d.targetPrice || "")}" placeholder="Optional"></div><div class="field"><label>Invalidation price</label><input id="invalidationPrice" inputmode="decimal" value="${esc(d.invalidationPrice || "")}" placeholder="Optional"></div><div class="field wide"><label>Notes / evidence</label><textarea id="tradeNotes" rows="2" maxlength="4000" placeholder="What evidence are you relying on?">${esc(d.notes || "")}</textarea></div></div></details><button id="execute" class="btn">Simulate ${state.side}</button></div><div class="unlimited-note">No balance or ownership check is applied. The journal is permanently stored with this trade in Cloudflare D1. Every fill shows actual and percentage P/L, SPY/QQQ comparison when history is loaded, and an optional AI post-trade review after closing.</div></section><section class="card"><div class="row"><div><div class="eyebrow">Trade results</div><h2>P/L for every fill and decision quality</h2></div><button id="loadBenchmarks" class="mini-btn">Load SPY + QQQ</button></div>${results.length ? `<div class="list">${results.slice(0, 30).map(tradeResultRow).join("")}</div>` : '<div class="empty">No fills yet.</div>'}</section></div>`;
+      }
+      function sma(a, n, i) {
+        if (i + 1 < n) return null;
+        let s = 0;
+        for (let x = i - n + 1; x <= i; x++) s += a[x];
+        return s / n;
+      }
+      function backtest() {
+        const rows = state.history[state.symbol] || [];
+        if (rows.length < 60) return message("Load history first.");
+        const c = rows.map((x) => MarketLabHistory.priceValue(x));
+        let cash = 100000,
+          shares = 0,
+          entry = 0,
+          trades = 0;
+        const curve = [];
+        for (let i = 30; i < c.length - 1; i++) {
+          const f = sma(c, 10, i),
+            slow = sma(c, 30, i),
+            pf = sma(c, 10, i - 1),
+            ps = sma(c, 30, i - 1),
+            next = Number(rows[i + 1].adjustedOpen ?? rows[i + 1].open);
+          if (!shares && pf <= ps && f > slow) {
+            shares = cash / next;
+            entry = next;
+            cash = 0;
+            trades++;
+          } else if (
+            shares &&
+            ((pf >= ps && f < slow) ||
+              c[i] < entry * 0.93 ||
+              c[i] > entry * 1.16)
+          ) {
+            cash = shares * next;
+            shares = 0;
+            trades++;
+          }
+          curve.push(cash + shares * c[i]);
+        }
+        const final = cash + shares * c.at(-1);
+        state.lastBacktest = {
+          final,
+          returnPct: (final / 100000 - 1) * 100,
+          trades,
+          curve,
+          benchmark: (c.at(-1) / c[30] - 1) * 100,
+        };
+        save();
+        message("Backtest completed with next-bar execution.");
+        render();
+      }
+      function strategy() {
+        const r = state.lastBacktest;
+        return `<div class="stack"><section class="card"><div class="eyebrow">Strategy engine</div><h2>SMA 10/30 + exits</h2><p class="muted">Signals use the completed bar; fills occur at the next bar open. Stop loss 7%, take profit 16%.</p><button id="backtest" class="btn">Run backtest</button></section>${r ? `<div class="grid"><div class="metric"><span>Final equity</span><strong>${money(r.final)}</strong><span>${r.returnPct.toFixed(2)}% strategy</span></div><div class="metric"><span>Trades</span><strong>${r.trades}</strong><span>${r.benchmark.toFixed(2)}% benchmark</span></div></div><section class="card">${chart(r.curve)}<div class="warning">Historical simulation is hypothetical and does not predict future returns.</div></section>` : '<section class="card"><div class="empty">Run the strategy after loading market history.</div></section>'}</div>`;
+      }
+      function research() {
+        const q = state.quotes[state.symbol],
+          hist = state.history[state.symbol] || [];
+        const prices = hist.map((x) => MarketLabHistory.priceValue(x)),
+          returns = prices.slice(1).map((x, i) => x / prices[i] - 1);
+        const mean = returns.reduce((a, b) => a + b, 0) / (returns.length || 1),
+          sd =
+            Math.sqrt(
+              returns.reduce((a, b) => a + (b - mean) ** 2, 0) /
+                (returns.length || 1),
+            ) *
+            Math.sqrt(252) *
+            100;
+        const peak = prices.reduce((p, x) => Math.max(p, x), 0),
+          dd = q ? (q.price / peak - 1) * 100 : 0;
+        return `<div class="stack"><section class="card"><div class="eyebrow">Research center</div><h2>${state.symbol}</h2><p class="muted">Local analysis based only on the loaded price history. No current fundamentals or news are inferred.</p></section><div class="grid"><div class="metric"><span>Annualized volatility</span><strong>${isFinite(sd) ? sd.toFixed(2) : "—"}%</strong><span>Historical estimate</span></div><div class="metric"><span>From history peak</span><strong>${isFinite(dd) ? dd.toFixed(2) : "—"}%</strong><span>Not a forecast</span></div></div><section class="card"><div class="eyebrow">Explainable learning review</div><h2>Risk interpretation</h2><div class="lesson"><strong>Bull case</strong><p>Positive trend persistence may support further gains, but loaded prices alone are insufficient evidence.</p></div><div class="lesson"><strong>Bear case</strong><p>Volatility, concentration, and adverse gaps can produce losses larger than normal daily estimates.</p></div><div class="lesson"><strong>Missing evidence</strong><p>Current earnings, valuation, news, sector exposure, macro data, and licensed real-time quotes.</p></div></section></div>`;
+      }
+
+      async function runAI(scope) {
+        if (aiBusy) return;
+        const input = $("#aiQuestion");
+        state.aiQuestion = String(input?.value ?? state.aiQuestion ?? "").slice(
+          0,
+          500,
+        );
+        aiBusy = true;
+        render();
+        message(
+          `Generating ${scope === "symbol" ? state.symbol : "portfolio"} suggestions…`,
+        );
+        try {
+          const result = await api("/api/ai/suggestions", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({
+              scope,
+              symbol: state.symbol,
+              question: state.aiQuestion,
+              state,
+            }),
+          });
+          state.aiResult = result;
+          save();
+          message(
+            `${result.mode === "openai" ? "OpenAI" : "Local"} suggestions generated. No trade was executed.`,
+          );
+        } catch (e) {
+          message(String(e.message || e));
+        } finally {
+          aiBusy = false;
+          render();
+        }
+      }
+      function aiSuggestionCard(item) {
+        const evidence = Array.isArray(item.evidence) ? item.evidence : [];
+        return `<article class="ai-card"><div class="ai-card-head"><h3>${esc(item.title || "Observation")}</h3><span class="ai-signal ${esc(item.signal || "neutral")}">${esc(item.signal || "neutral")}</span></div><p>${esc(item.text || "")}</p>${evidence.length ? `<div class="ai-evidence">${evidence.map((x) => `<span>${esc(x)}</span>`).join("")}</div>` : ""}<div class="ai-action"><b>Simulation idea:</b> ${esc(item.action || "Review the evidence and test the idea in the simulator.")}</div></article>`;
+      }
+      function aiCoach() {
+        const result = state.aiResult,
+          openai = backendHealth.aiConfigured,
+          modeLabel = openai
+            ? `OpenAI · ${backendHealth.aiModel}`
+            : "Local explainable engine";
+        return `<div class="stack"><section class="card"><div class="row"><div><div class="eyebrow">Educational analysis</div><h2>AI Coach</h2></div><span class="ai-mode ${openai ? "openai" : ""}">✦ ${esc(modeLabel)}</span></div><p class="muted">The coach reviews loaded price history, long/short positions, exposure, and simulated P/L. It cannot execute a trade. It does not know your personal suitability, current news, or fundamentals unless those data are explicitly added later.</p><div class="field"><label>Optional question</label><textarea id="aiQuestion" rows="3" maxlength="500" placeholder="Example: What risk should I test for KLAC?">${esc(state.aiQuestion || "")}</textarea></div><div class="ai-actions"><button id="aiPortfolio" class="btn" ${aiBusy ? "disabled" : ""}>${aiBusy ? "Analyzing…" : "Analyze portfolio"}</button><button id="aiSymbol" class="btn secondary" ${aiBusy ? "disabled" : ""}>Analyze ${esc(state.symbol)}</button></div></section>${result ? `<section class="card"><div class="ai-result-head"><div><div class="eyebrow">${esc(result.provider)} · ${new Date(result.generatedAt).toLocaleString()}</div><h2>${esc(result.stance)}</h2><p class="muted">${esc(result.summary)}</p></div><div class="ai-confidence"><strong>${Number(result.confidence) || 0}%</strong><span>confidence</span></div></div>${result.warning ? `<div class="ai-warning">${esc(result.warning)}</div>` : ""}<div class="ai-cards">${(result.suggestions || []).map(aiSuggestionCard).join("")}</div><div class="ai-limitations"><b>Limits:</b> ${(result.limitations || []).map(esc).join(" · ")}</div></section>` : '<section class="card"><div class="empty">Choose portfolio or selected-company analysis to generate suggestions.</div></section>'}</div>`;
+      }
+
+      function performanceView() {
+        const range = MarketLabPerformance.normalizeRange(
+            state.performanceRange,
+          ),
+          metric = ["balance", "cash", "exposure"].includes(
+            state.performanceMetric,
+          )
+            ? state.performanceMetric
+            : "balance",
+          symbol = String(state.performanceSymbol || "ALL").toUpperCase(),
+          result = MarketLabPerformance.series(state, { range, symbol }),
+          tradeSymbols = MarketLabTrading.uniqueSymbols(
+            (state.trades || []).map((t) => t.symbol),
+          ),
+          symbols = ["ALL", ...tradeSymbols],
+          metricLabel =
+            metric === "cash"
+              ? "Net cash flow"
+              : metric === "exposure"
+                ? "Gross exposure"
+                : "Simulation balance",
+          metricDescription =
+            metric === "cash"
+              ? "Cash received minus cash spent"
+              : metric === "exposure"
+                ? "Absolute long and short market value"
+                : "Net simulated result from zero starting capital";
+        if (!result.points.length)
+          return `<div class="stack"><section class="card"><div class="eyebrow">Portfolio performance</div><h2>Balance over time</h2><p class="muted">Every buy and sell will appear here as a marker and timeline event.</p></section><section class="card"><div class="empty">Make your first simulated trade to create the performance timeline.</div></section></div>`;
+        const w = 660,
+          h = 265,
+          pad = { left: 58, right: 14, top: 18, bottom: 34 },
+          g = MarketLabPerformance.geometry(result.points, metric, w, h, pad),
+          values = g.points.map((p) => p.value),
+          start = values[0] || 0,
+          current = values.at(-1) || 0,
+          change = current - start,
+          negative = change < 0,
+          area = `${g.path} L ${g.points.at(-1).x.toFixed(2)} ${(h - pad.bottom).toFixed(2)} L ${g.points[0].x.toFixed(2)} ${(h - pad.bottom).toFixed(2)} Z`,
+          ticks = [0, 0.25, 0.5, 0.75, 1]
+            .map((f) => {
+              const y = pad.top + f * (h - pad.top - pad.bottom),
+                value = g.max - f * (g.max - g.min);
+              return `<line class="history-grid" x1="${pad.left}" x2="${w - pad.right}" y1="${y}" y2="${y}"/><text class="history-axis-label" x="2" y="${y + 3}">${money(value)}</text>`;
+            })
+            .join(""),
+          zeroY =
+            g.min <= 0 && g.max >= 0
+              ? pad.top +
+                (1 - (0 - g.min) / (g.max - g.min)) * (h - pad.top - pad.bottom)
+              : null,
+          markers = MarketLabPerformance.eventGeometry(
+            result.points,
+            result.events,
+            metric,
+            w,
+            h,
+            pad,
+          ),
+          markerSvg = markers
+            .map((event, index) => {
+              const offset = ((index % 3) - 1) * 15,
+                y = Math.max(
+                  pad.top + 9,
+                  Math.min(h - pad.bottom - 9, event.y + offset),
+                );
+              return `<g class="trade-marker ${event.side}" data-performance-event="${event.eventIndex}" transform="translate(${event.x.toFixed(2)} ${y.toFixed(2)})"><circle r="8"/><text y=".5">${event.side === "buy" ? "B" : "S"}</text></g>`;
+            })
+            .join(""),
+          first = result.points[0],
+          last = result.points.at(-1),
+          percent =
+            metric === "balance" && Math.abs(start) > 1e-9
+              ? `${change >= 0 ? "+" : ""}${((change / Math.abs(start)) * 100).toFixed(2)}%`
+              : "—",
+          buys = result.events.filter((e) => e.side === "buy").length,
+          sells = result.events.filter((e) => e.side === "sell").length,
+          missing = tradeSymbols.filter(
+            (s) =>
+              !Array.isArray(state.history[s]) || state.history[s].length < 2,
+          ),
+          timeline = result.events
+            .slice()
+            .reverse()
+            .map(
+              (event) =>
+                `<div class="performance-event"><div class="event-badge ${event.side}">${event.side === "buy" ? "BUY" : "SELL"}</div><div class="event-main"><strong>${event.symbol} · ${num(event.qty)} shares at ${money(event.price)}</strong><small>${new Date(event.time).toLocaleString()} · cash impact ${signedMoney(event.cashImpact)}${event.fee ? ` · fee ${money(event.fee)}` : ""}</small></div><div class="event-balance"><strong class="${event.balanceAfter >= 0 ? "good" : "bad"}">${signedMoney(event.balanceAfter)}</strong><small>balance after day</small></div></div>`,
+            )
+            .join("");
+        return `<div class="stack"><section class="card"><div class="eyebrow">Portfolio performance</div><h2>Balance and trades over time</h2><p class="muted">Because unlimited mode has no starting capital, Balance means net simulated result: cash flow plus signed market value.</p><div class="performance-controls"><div class="performance-toolbar"><div class="field"><label>Companies</label><select id="performanceSymbol">${symbols.map((value) => `<option value="${value}" ${symbol === value ? "selected" : ""}>${value === "ALL" ? "All companies" : value}</option>`).join("")}</select></div><div><div class="field"><label>Time range</label></div><div class="performance-ranges">${["1M", "3M", "1Y", "ALL"].map((value) => `<button data-performance-range="${value}" class="${range === value ? "active" : ""}">${value === "ALL" ? "All" : value}</button>`).join("")}</div></div></div><div><div class="field"><label>Chart metric</label></div><div class="performance-metrics">${[
+          ["balance", "Balance"],
+          ["cash", "Cash"],
+          ["exposure", "Exposure"],
+        ]
+          .map(
+            (item) =>
+              `<button data-performance-metric="${item[0]}" class="${metric === item[0] ? "active" : ""}">${item[1]}</button>`,
+          )
+          .join(
+            "",
+          )}</div></div></div></section><section class="card"><div class="history-head"><div><div class="eyebrow">${metricLabel}</div><h2>${metricDescription}</h2></div><strong class="${current >= 0 ? "good" : "bad"}">${signedMoney(current)}</strong></div><div class="performance-summary"><div><span>Range change</span><strong class="${change >= 0 ? "good" : "bad"}">${signedMoney(change)}</strong></div><div><span>Change %</span><strong>${percent}</strong></div><div><span>Buys</span><strong>${buys}</strong></div><div><span>Sells</span><strong>${sells}</strong></div></div><div id="performanceCanvas" class="performance-canvas"><svg id="performanceSvg" class="performance-svg" viewBox="0 0 ${w} ${h}" preserveAspectRatio="none" aria-label="${range} ${metricLabel} chart">${ticks}${zeroY === null ? "" : `<line class="performance-zero" x1="${pad.left}" x2="${w - pad.right}" y1="${zeroY}" y2="${zeroY}"/>`}<path class="performance-area ${negative ? "negative" : ""}" d="${area}"/><path class="performance-line ${negative ? "negative" : ""}" d="${g.path}"/>${markerSvg}</svg><div class="chart-crosshair"></div><div class="chart-dot"></div><div class="chart-tooltip"><strong></strong><span></span></div></div><div class="history-footer"><span>${first.day}</span><span>${result.points[Math.floor(result.points.length / 2)].day}</span><span>${last.day}</span></div><div class="performance-legend"><span class="buy">Buy marker</span><span class="sell">Sell marker</span><span>Tap a marker for details</span></div>${missing.length ? `<div class="coverage-note">Load price history for ${missing.join(", ")} to improve the portfolio curve. Until then MarketLab carries forward the latest available trade or quote price.</div>` : ""}</section><section class="card"><div class="eyebrow">Trade timeline</div><h2>When you bought and sold</h2>${timeline || '<div class="empty">No trades in this selected range.</div>'}</section></div>`;
+      }
+      function bindPerformance() {
+        document.querySelectorAll("[data-performance-range]").forEach(
+          (button) =>
+            (button.onclick = () => {
+              state.performanceRange = button.dataset.performanceRange;
+              save();
+              render();
+            }),
+        );
+        document.querySelectorAll("[data-performance-metric]").forEach(
+          (button) =>
+            (button.onclick = () => {
+              state.performanceMetric = button.dataset.performanceMetric;
+              save();
+              render();
+            }),
+        );
+        $("#performanceSymbol")?.addEventListener("change", (event) => {
+          state.performanceSymbol = event.target.value;
+          save();
+          render();
+        });
+        document
+          .querySelectorAll("[data-performance-event]")
+          .forEach((marker) =>
+            marker.addEventListener("click", () => {
+              const result = MarketLabPerformance.series(state, {
+                  range: state.performanceRange,
+                  symbol: state.performanceSymbol,
+                }),
+                event = result.events[Number(marker.dataset.performanceEvent)];
+              if (event)
+                message(
+                  `${event.side.toUpperCase()} ${num(event.qty)} ${event.symbol} at ${money(event.price)} on ${new Date(event.time).toLocaleString()} · balance after day ${signedMoney(event.balanceAfter)}.`,
+                );
+            }),
+          );
+        bindPerformanceCursor();
+      }
+
+      async function loadBenchmarks() {
+        message("Loading SPY and QQQ benchmark history…");
+        const selected = state.symbol;
+        for (const symbol of ["SPY", "QQQ"]) {
+          try {
+            const data = await api("/api/market?symbol=" + symbol);
+            state.quotes[symbol] = data.quote;
+            state.history[symbol] = data.points;
+            state.splits[symbol] = data.splits || [];
+            state.splitStatus[symbol] = data.splitDataStatus || "unavailable";
+          } catch (e) {
+            message(`Could not load ${symbol}: ${String(e.message || e)}`);
+          }
+        }
+        state.symbol = selected;
+        save();
+        render();
+        message(
+          "SPY and QQQ benchmark history loaded. Trade comparisons are now available.",
+        );
+      }
+      async function loadXrayData() {
+        const symbols = MarketLabTrading.uniqueSymbols([
+          ...(state.positions || []).map((p) => p.symbol),
+          "SPY",
+          "QQQ",
+        ]);
+        if (!symbols.length) return message("Open a simulated position first.");
+        const selected = state.symbol;
+        let loaded = 0;
+        for (const symbol of symbols) {
+          message(
+            `Loading ${symbol} history for Portfolio X-Ray (${loaded + 1}/${symbols.length})…`,
+          );
+          try {
+            const data = await api(
+              "/api/market?symbol=" + encodeURIComponent(symbol),
+            );
+            state.quotes[symbol] = data.quote;
+            state.history[symbol] = data.points;
+            state.splits[symbol] = data.splits || [];
+            state.splitStatus[symbol] = data.splitDataStatus || "unavailable";
+            loaded++;
+          } catch {}
+        }
+        state.symbol = selected;
+        save();
+        render();
+        message(
+          `Portfolio X-Ray loaded history for ${loaded} of ${symbols.length} symbols.`,
+        );
+      }
+      async function runTradeReview(id) {
+        const results = MarketLabTrading.tradeResults(state),
+          result = results.find((item) => item.id === id),
+          trade = (state.trades || []).find((item) => item.id === id);
+        if (!trade || !result) return message("Trade result not found.");
+        reviewBusy = id;
+        render();
+        try {
+          const benchmarks = MarketLabInsights.benchmarkForTrade(result, state),
+            review = await api("/api/ai/trade-review", {
+              method: "POST",
+              headers: { "Content-Type": "application/json" },
+              body: JSON.stringify({ trade, result, benchmarks, state }),
+            });
+          state.tradeReviews = { ...(state.tradeReviews || {}), [id]: review };
+          backendHealth.tradeReviewCount =
+            (backendHealth.tradeReviewCount || 0) + 1;
+          save();
+          message(
+            `${trade.symbol} post-trade review saved to the private cloud database.`,
+          );
+        } catch (e) {
+          message(String(e.message || e));
+        } finally {
+          reviewBusy = "";
+          render();
+        }
+      }
+      function lab() {
+        const input = state.whatIf || {
+            symbol: state.symbol,
+            side: "buy",
+            quantity: "1",
+          },
+          simulation = MarketLabInsights.whatIf(state, input),
+          xray = MarketLabInsights.xray(state),
+          scenarioHtml = simulation.valid
+            ? simulation.scenarios
+                .map(
+                  (item) =>
+                    `<div class="scenario"><span>${item.movePercent > 0 ? "+" : ""}${item.movePercent}% price</span><strong class="${item.pnl >= 0 ? "good" : "bad"}">${signedMoney(item.pnl)}</strong><span>${money(item.futurePrice)} future price</span></div>`,
+                )
+                .join("")
+            : "",
+          positions = xray.positions
+            .map(
+              (position) =>
+                `<div class="xray-position"><strong>${position.symbol}</strong><div><div class="weight-track"><i style="width:${Math.min(100, position.weightPercent)}%"></i></div><small class="muted">${position.qty > 0 ? "Long" : "Short"} ${num(Math.abs(position.qty))} · ${money(position.signedValue)}</small></div><b>${position.weightPercent.toFixed(1)}%</b></div>`,
+            )
+            .join(""),
+          correlations = xray.correlations
+            .slice(0, 6)
+            .map(
+              (item) =>
+                `<div class="correlation-row"><span>${item.first} ↔ ${item.second}</span><strong class="${Math.abs(item.correlation) > 0.8 ? "bad" : Math.abs(item.correlation) > 0.5 ? "" : "good"}">${item.correlation.toFixed(2)}</strong></div>`,
+            )
+            .join("");
+        return `<div class="stack"><section class="card"><div class="eyebrow">Pre-trade simulator</div><h2>What-if Lab</h2><p class="muted">Test a paper order before recording it. Nothing in this panel creates a trade.</p><div class="journal-grid"><div class="field"><label>Symbol</label><input id="whatIfSymbol" value="${esc(input.symbol || state.symbol)}" autocapitalize="characters"></div><div class="field"><label>Side</label><select id="whatIfSide"><option value="buy" ${input.side !== "sell" ? "selected" : ""}>Buy / cover</option><option value="sell" ${input.side === "sell" ? "selected" : ""}>Sell / short</option></select></div><div class="field"><label>Quantity</label><input id="whatIfQty" inputmode="decimal" value="${esc(input.quantity || "1")}"></div><div class="field"><label>Current price</label><input disabled value="${state.quotes[String(input.symbol || "").toUpperCase()] ? money(state.quotes[String(input.symbol || "").toUpperCase()].price) : "Load quote first"}"></div></div><button id="runWhatIf" class="btn">Analyze scenario</button>${simulation.valid ? `<div class="grid" style="margin-top:11px"><div class="metric"><span>Order notional</span><strong>${money(simulation.notional)}</strong><span>${simulation.side.toUpperCase()} ${num(simulation.quantity)} ${simulation.symbol}</span></div><div class="metric"><span>Position after</span><strong>${simulation.newQty > 0 ? "+" : ""}${num(simulation.newQty)}</strong><span>${simulation.newQty > 0 ? "Long" : simulation.newQty < 0 ? "Short" : "Flat"}</span></div><div class="metric"><span>Projected gross exposure</span><strong>${money(simulation.projectedGross)}</strong><span>After this simulated order</span></div><div class="metric"><span>Company concentration</span><strong>${simulation.concentration.toFixed(1)}%</strong><div class="exposure-bar"><span style="width:${Math.min(100, simulation.concentration)}%"></span></div></div></div><div class="lab-scenarios">${scenarioHtml}</div>${simulation.warnings.length ? simulation.warnings.map((w) => `<div class="warning" style="margin-top:8px">${esc(w)}</div>`).join("") : '<div class="lab-note" style="margin-top:8px">No rule-based concentration warning was triggered for this scenario.</div>'}<button id="whatIfAI" class="btn secondary" style="margin-top:10px">Ask AI Coach about this scenario</button>` : `<div class="empty">${esc(simulation.reason || "Enter a valid scenario.")}</div>`}</section><section class="card"><div class="row"><div><div class="eyebrow">Risk analysis</div><h2>Portfolio X-Ray</h2></div><button id="loadXrayData" class="mini-btn">Load histories</button></div>${xray.positions.length ? `<div class="grid"><div class="metric"><span>Diversification score</span><strong>${xray.diversificationScore}/100</strong><span>Based on position concentration</span></div><div class="metric"><span>Largest position</span><strong>${xray.positions[0].weightPercent.toFixed(1)}%</strong><span>${xray.positions[0].symbol}</span></div><div class="metric"><span>Annualized volatility</span><strong>${xray.annualizedVolatility == null ? "Need history" : xray.annualizedVolatility.toFixed(1) + "%"}</strong><span>${xray.observations} common daily returns</span></div><div class="metric"><span>Beta vs SPY</span><strong>${xray.beta == null ? "Need SPY" : xray.beta.toFixed(2)}</strong><span>Historical estimate</span></div></div><div style="margin-top:10px">${positions}</div><div class="lesson"><strong>Risk flags</strong><p>${xray.flags.map(esc).join(" · ")}</p></div>${correlations ? `<div class="eyebrow" style="margin-top:14px">Strongest loaded correlations</div><div class="correlation-grid">${correlations}</div>` : '<div class="empty">Load overlapping price histories to calculate correlations.</div>'}<div class="warning" style="margin-top:10px">Sector concentration is not shown unless a future metadata provider is added. Volatility, beta, and correlation are historical estimates, not forecasts.</div>` : '<div class="empty">No open positions. The X-Ray becomes available after your first simulated trade.</div>'}</section></div>`;
+      }
+      function journal() {
+        return `<div class="stack"><section class="card"><div class="eyebrow">Learning journal</div><h2>Portfolio reviews</h2><button id="addJournal" class="btn">Generate local review</button></section>${state.journal.length ? state.journal.map((j) => `<section class="card"><div class="eyebrow">${new Date(j.time).toLocaleString()}</div><h2>${j.title}</h2><p class="muted">${j.body}</p></section>`).join("") : '<section class="card"><div class="empty">No journal entries yet.</div></section>'}</div>`;
+      }
+      function settings() {
+        return `<div class="stack"><section class="card"><div class="eyebrow">Learning experience</div><h2>Beginner explanations</h2><p class="muted">Keep plain-language screen guides and tappable question marks visible throughout MarketLab.</p><label class="switch-row"><input id="beginnerMode" type="checkbox" ${state.settings?.beginnerMode !== false ? "checked" : ""}><div><strong>Beginner learning mode</strong><span>Show contextual explanations, examples, warnings, and glossary links.</span></div></label><div class="two" style="margin-top:10px"><button class="btn secondary" data-help="glossary">Open glossary</button><button id="restartTour" class="btn secondary">Restart welcome guide</button></div></section><section class="card"><div class="eyebrow">Market data</div><h2>${backendHealth.liveQuotesConfigured ? "Twelve Data current quotes" : "Current quotes not configured"}</h2><p class="muted">${backendHealth.liveQuotesConfigured ? "Refresh all uses Twelve Data. Daily history and splits use " + (backendHealth.historicalDataProvider || "the configured historical provider") + "." : "Add TWELVE_DATA_API_KEY as a Cloudflare Worker secret to enable current prices and Refresh all."}</p><div class="lesson"><strong>Current quotes</strong><p>${backendHealth.liveQuoteProvider || "Not configured"}</p></div><div class="lesson"><strong>History and splits</strong><p>${backendHealth.historicalDataProvider || "Not configured"}</p></div></section><section class="card"><div class="eyebrow">Trading mode</div><h2>Unlimited simulation</h2><p class="muted">There is no starting value. Buys may create negative simulated cash flow, and sells may create short positions. Net P/L is calculated as net cash flow plus the signed market value of all positions.</p></section><section class="card"><div class="eyebrow">Simulation assumptions</div><h2>Simulation settings</h2><div class="form"><div class="field"><label>Commission per order (USD)</label><input id="commission" inputmode="decimal" value="${state.settings.commission}"></div><div class="field"><label>Slippage rate (decimal)</label><input id="slippage" inputmode="decimal" value="${state.settings.slippage}"></div><button id="saveSettings" class="btn">Save settings</button></div></section><section class="card"><div class="eyebrow">AI Coach</div><h2>${backendHealth.aiConfigured ? "OpenAI connected" : "Local mode active"}</h2><p class="muted">Local suggestions work immediately. For optional language-model suggestions, add OPENAI_API_KEY as an encrypted Cloudflare Worker secret. The key stays on the server and is never sent to Safari.</p><p class="muted">Configured model: ${esc(backendHealth.aiModel || "local-rules-v1")}</p></section><section class="card"><div class="eyebrow">Cloud persistence</div><h2>${backendHealth.tradeCount || 0} standalone trade records</h2><p class="muted">Every buy and sell is stored as its own immutable row in Cloudflare D1. Deploying new code does not replace the database or encrypted provider secrets.</p><div class="lesson"><strong>Provider keys</strong><p>${backendHealth.keysPersisted ? "Configured as server-side Cloudflare secrets." : "No provider secrets are configured yet."}</p></div><div class="lesson"><strong>Database</strong><p>${esc(backendHealth.tradeDatabase || "Cloudflare D1")}</p></div><a href="/import" class="btn secondary" style="display:block;text-align:center;text-decoration:none">Import / export data</a><button id="backupNow" class="btn secondary" style="margin-top:8px">Create cloud snapshot</button><button id="reset" class="btn secondary" style="margin-top:8px">Reset interface state only</button></section></div>`;
+      }
+      function bind() {
+        bindPriceHistory();
+        bindPerformance();
+        bindGenericCharts();
+        $("#refreshAll")?.addEventListener("click", refreshAll);
+        $("#aiPortfolio")?.addEventListener("click", () => runAI("portfolio"));
+        $("#aiSymbol")?.addEventListener("click", () => runAI("symbol"));
+        $("#aiQuestion")?.addEventListener("change", (event) => {
+          state.aiQuestion = event.target.value;
+          save();
+        });
+        document.querySelectorAll("[data-side]").forEach(
+          (b) =>
+            (b.onclick = () => {
+              state.side = b.dataset.side;
+              save();
+              render();
+            }),
+        );
+        $("#load")?.addEventListener("click", () => {
+          state.symbol = $("#symbol").value.toUpperCase().trim();
+          save();
+          loadMarket(null, true);
+        });
+        $("#execute")?.addEventListener("click", () => {
+          state.qty = $("#qty").value;
+          currentTradeJournal();
+          save();
+          execute();
+        });
+        [
+          "tradeThesis",
+          "expectedHolding",
+          "tradeConfidence",
+          "targetPrice",
+          "invalidationPrice",
+          "tradeNotes",
+        ].forEach((id) =>
+          $("#" + id)?.addEventListener("change", () => {
+            currentTradeJournal();
+            save();
+          }),
+        );
+        $("#loadBenchmarks")?.addEventListener("click", loadBenchmarks);
+        document
+          .querySelectorAll("[data-trade-review]")
+          .forEach((button) =>
+            button.addEventListener("click", () =>
+              runTradeReview(button.dataset.tradeReview),
+            ),
+          );
+        $("#boardQty")?.addEventListener("change", (event) => {
+          state.boardQty = event.target.value;
+          save();
+        });
+        $("#addBoardSymbol")?.addEventListener("click", () => {
+          const symbol = String($("#boardSymbol")?.value || "")
+            .toUpperCase()
+            .trim()
+            .replace(/[^A-Z0-9.:-]/g, "");
+          if (!symbol) return message("Enter a valid symbol.");
+          state.watchlist = MarketLabTrading.uniqueSymbols([
+            ...(state.watchlist || []),
+            symbol,
+          ]);
+          state.symbol = symbol;
+          save();
+          render();
+        });
+        document.querySelectorAll("[data-open-symbol]").forEach(
+          (b) =>
+            (b.onclick = () => {
+              state.symbol = b.dataset.openSymbol;
+              save();
+              render();
+            }),
+        );
+        document
+          .querySelectorAll("[data-load-symbol]")
+          .forEach((b) => (b.onclick = () => loadMarket(b.dataset.loadSymbol)));
+        document.querySelectorAll("[data-remove-symbol]").forEach(
+          (b) =>
+            (b.onclick = () => {
+              state.watchlist = (state.watchlist || []).filter(
+                (symbol) => symbol !== b.dataset.removeSymbol,
+              );
+              save();
+              render();
+            }),
+        );
+        document.querySelectorAll("[data-quick-side]").forEach(
+          (b) =>
+            (b.onclick = () => {
+              const qty = Number($("#boardQty")?.value || state.boardQty);
+              state.boardQty = String($("#boardQty")?.value || state.boardQty);
+              executeFor(b.dataset.symbol, b.dataset.quickSide, qty, null);
+            }),
+        );
+        $("#runWhatIf")?.addEventListener("click", () => {
+          state.whatIf = {
+            symbol: String($("#whatIfSymbol")?.value || state.symbol)
+              .toUpperCase()
+              .trim(),
+            side: $("#whatIfSide")?.value === "sell" ? "sell" : "buy",
+            quantity: String($("#whatIfQty")?.value || "1"),
+          };
+          save();
+          render();
+        });
+        $("#loadXrayData")?.addEventListener("click", loadXrayData);
+        $("#whatIfAI")?.addEventListener("click", () => {
+          const simulation = MarketLabInsights.whatIf(state, state.whatIf);
+          if (!simulation.valid) return message(simulation.reason);
+          state.aiQuestion = `Evaluate this paper-trade scenario using only loaded data: ${simulation.side} ${simulation.quantity} ${simulation.symbol} at ${money(simulation.price)}. Projected concentration ${simulation.concentration.toFixed(1)}%. Discuss risks, missing evidence, and what should invalidate the thesis.`;
+          state.tab = "ai";
+          save();
+          render();
+          setTimeout(() => runAI("portfolio"), 0);
+        });
+        $("#backtest")?.addEventListener("click", backtest);
+        $("#addJournal")?.addEventListener("click", () => {
+          state.journal.unshift({
+            time: new Date().toISOString(),
+            title: `${state.symbol} portfolio review`,
+            body: `Net simulation P/L ${money(total())}; unrealized P/L ${money(pnl())}. Review long and short exposure, data freshness, and the assumptions behind every trade.`,
+          });
+          save();
+          render();
+        });
+        $("#saveSettings")?.addEventListener("click", () => {
+          state.settings.commission = Math.max(
+            0,
+            Number($("#commission").value) || 0,
+          );
+          state.settings.slippage = Math.max(
+            0,
+            Number($("#slippage").value) || 0,
+          );
+          save();
+          message("Settings saved to the cloud backend.");
+        });
+        $("#backupNow")?.addEventListener("click", async () => {
+          try {
+            const result = await api("/api/backup", {
+              method: "POST",
+              headers: { "Content-Type": "application/json" },
+              body: "{}",
+            });
+            message(
+              `Cloud snapshot created · ID ${result.backupId || "saved"}.`,
+            );
+          } catch (e) {
+            message(String(e.message || e));
+          }
+        });
+        $("#reset")?.addEventListener("click", () => {
+          state = fresh();
+          save();
+          render();
+          message(
+            "Interface state reset. The Cloudflare D1 trade database was preserved.",
+          );
+        });
+        bindLearningActions();
+      }
+      function bindPerformanceCursor() {
+        const canvas = $("#performanceCanvas");
+        if (!canvas) return;
+        const result = MarketLabPerformance.series(state, {
+            range: state.performanceRange,
+            symbol: state.performanceSymbol,
+          }),
+          metric = state.performanceMetric || "balance",
+          g = MarketLabPerformance.geometry(result.points, metric, 660, 265, {
+            left: 58,
+            right: 14,
+            top: 18,
+            bottom: 34,
+          });
+        if (g.points.length < 2) return;
+        bindCursor(
+          canvas,
+          g.points,
+          660,
+          265,
+          58,
+          14,
+          (p) => money(p.value),
+          (p) => `${p.day} · ${metric}`,
+        );
+      }
+      function bindCursor(
+        canvas,
+        points,
+        w,
+        h,
+        leftPad,
+        rightPad,
+        valueText,
+        detailText,
+      ) {
+        const cross = canvas.querySelector(".chart-crosshair"),
+          dot = canvas.querySelector(".chart-dot"),
+          tip = canvas.querySelector(".chart-tooltip");
+        if (!cross || !dot || !tip || !points.length) return;
+        function inspect(event) {
+          const rect = canvas.getBoundingClientRect(),
+            x = Math.max(0, Math.min(rect.width, event.clientX - rect.left)),
+            plotLeft = (leftPad / w) * rect.width,
+            plotRight = (rightPad / w) * rect.width,
+            plotWidth = Math.max(1, rect.width - plotLeft - plotRight),
+            index = Math.max(
+              0,
+              Math.min(
+                points.length - 1,
+                Math.round(((x - plotLeft) / plotWidth) * (points.length - 1)),
+              ),
+            ),
+            p = points[index],
+            left =
+              ((p.x ??
+                leftPad +
+                  (index / (points.length - 1)) * (w - leftPad - rightPad)) /
+                w) *
+              rect.width,
+            top = ((p.y ?? h / 2) / h) * rect.height;
+          cross.style.display = dot.style.display = tip.style.display = "block";
+          cross.style.left = `${left}px`;
+          dot.style.left = `${left}px`;
+          dot.style.top = `${top}px`;
+          tip.querySelector("strong").textContent = valueText(p, index);
+          tip.querySelector("span").textContent = detailText(p, index);
+          tip.style.left = `${Math.max(5, Math.min(rect.width - 150, left + (left > rect.width * 0.65 ? -145 : 10)))}px`;
+          tip.style.top = `${Math.max(5, top - 50)}px`;
+        }
+        canvas.addEventListener("pointerdown", inspect);
+        canvas.addEventListener("pointermove", (e) => {
+          if (e.pointerType === "mouse" || e.buttons) inspect(e);
+        });
+      }
+      function bindGenericCharts() {
+        document.querySelectorAll(".generic-chart").forEach((canvas) => {
+          let values = [];
+          try {
+            values = JSON.parse(
+              decodeURIComponent(canvas.dataset.chartValues || ""),
+            );
+          } catch {}
+          if (values.length < 2) return;
+          const w = 600,
+            h = 150,
+            min = Math.min(...values),
+            max = Math.max(...values),
+            r = max - min || 1,
+            points = values.map((value, index) => ({
+              value,
+              x: (index / (values.length - 1)) * w,
+              y: h - 8 - ((value - min) / r) * (h - 16),
+            }));
+          bindCursor(
+            canvas,
+            points,
+            w,
+            h,
+            0,
+            0,
+            (p) => money(p.value),
+            (p, i) =>
+              `${canvas.dataset.chartLabel || "Chart"} · point ${i + 1} of ${points.length}`,
+          );
+        });
+      }
+      function render() {
+        renderNav();
+        state.settings = { ...fresh().settings, ...(state.settings || {}) };
+        const page =
+          state.tab === "overview"
+            ? overview()
+            : state.tab === "performance"
+              ? performanceView()
+              : state.tab === "trade"
+                ? trade()
+                : state.tab === "strategy"
+                  ? strategy()
+                  : state.tab === "research"
+                    ? research()
+                    : state.tab === "ai"
+                      ? aiCoach()
+                      : state.tab === "lab"
+                        ? lab()
+                        : state.tab === "journal"
+                          ? journal()
+                          : settings();
+        const learning =
+          state.settings.beginnerMode !== false
+            ? `${state.tab === "overview" ? onboardingCard() : ""}${beginnerIntro(state.tab)}`
+            : "";
+        $("#view").innerHTML = `<div class="stack">${learning}</div>${page}`;
+        bind();
+        decorateBeginnerTerms();
+        bindLearningActions();
+      }
+      if ("serviceWorker" in navigator) navigator.serviceWorker.register("/service-worker.js").catch(() => {});
+      boot();
+    </script>
+  </body>
+</html>
