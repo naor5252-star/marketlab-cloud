@@ -116,6 +116,9 @@
     const lastPrices = {};
     const positions = Object.fromEntries(symbols.map((symbol) => [symbol, 0]));
     const fallbackPrices = {};
+    const settings = state && state.settings || {};
+    const slippage = Math.max(0, number(settings.slippage, 0));
+    const exitCommission = Math.max(0, number(settings.commission, 0));
     let cash = 0;
     let tradeIndex = 0;
     const points = [];
@@ -158,22 +161,30 @@
 
       let marketValue = 0;
       let grossExposure = 0;
+      let liquidationCash = cash;
+      let liquidationCosts = 0;
+      let openPositionCount = 0;
       for (const symbol of symbols) {
         const quantity = number(positions[symbol], 0);
         if (Math.abs(quantity) < 1e-12) continue;
         const quote = state.quotes && state.quotes[symbol];
         const price = number(lastPrices[symbol], 0) || number(fallbackPrices[symbol], 0) || number(quote && quote.price, 0);
+        if (!(price > 0)) continue;
         const value = quantity * price;
+        const friction = Math.abs(value) * slippage + exitCommission;
         marketValue += value;
         grossExposure += Math.abs(value);
+        liquidationCash += value - friction;
+        liquidationCosts += friction;
+        openPositionCount += 1;
       }
       const balance = cash + marketValue;
-      if (day >= cutoff) points.push({ day, balance, cash, marketValue, grossExposure });
+      if (day >= cutoff) points.push({ day, balance, cash, marketValue, grossExposure, liquidationCash, liquidationCosts, openPositionCount });
     }
 
     if (!points.length && allDates.length) {
       const last = allDates[allDates.length - 1];
-      points.push({ day: last, balance: cash, cash, marketValue: 0, grossExposure: 0 });
+      points.push({ day: last, balance: cash, cash, marketValue: 0, grossExposure: 0, liquidationCash: cash, liquidationCosts: 0, openPositionCount: 0 });
     }
 
     const pointByDay = new Map(points.map((point) => [point.day, point]));
@@ -191,6 +202,7 @@
 
   function metricValue(point, metric) {
     if (metric === "cash") return number(point && point.cash, 0);
+    if (metric === "liquidation") return number(point && point.liquidationCash, 0);
     if (metric === "exposure") return number(point && point.grossExposure, 0);
     return number(point && point.balance, 0);
   }

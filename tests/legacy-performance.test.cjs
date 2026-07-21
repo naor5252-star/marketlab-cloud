@@ -82,6 +82,23 @@ function rows(symbolStart, prices) {
   assert.strictEqual(Performance.normalizeRange('all'), 'ALL');
 })();
 
+(function liquidationCashIncludesEstimatedExitCosts() {
+  const state = {
+    trades: [
+      { id: 'long', symbol: 'AAA', side: 'buy', qty: 10, price: 100, fee: 0, time: '2026-01-01T12:00:00Z' },
+      { id: 'short', symbol: 'BBB', side: 'sell', qty: 4, price: 50, fee: 0, time: '2026-01-01T12:00:00Z' },
+    ],
+    history: { AAA: rows('2026-01-01', [100, 110]), BBB: rows('2026-01-01', [50, 40]) },
+    quotes: {}, splits: {}, settings: { slippage: 0.01, commission: 1 },
+  };
+  const result = Performance.series(state, { range: 'ALL', symbol: 'ALL' });
+  const last = result.points.at(-1);
+  assert.strictEqual(last.balance, 140); // -1000 + 200 + 1100 - 160
+  assert.strictEqual(last.liquidationCosts, 14.6); // 11+1 long, 1.6+1 short
+  assert.strictEqual(last.liquidationCash, 125.4);
+  assert.strictEqual(Performance.metricValue(last, 'liquidation'), 125.4);
+})();
+
 (function geometryAndMarkers() {
   const state = {
     trades: [{ id: 'b1', symbol: 'AAA', side: 'buy', qty: 1, price: 10, fee: 0, time: '2026-01-01T00:00:00Z' }],

@@ -423,7 +423,7 @@
       }
       .history-summary {
         display: grid;
-        grid-template-columns: repeat(4, 1fr);
+        grid-template-columns: repeat(3, 1fr);
         gap: 7px;
         margin: 12px 0;
       }
@@ -662,6 +662,53 @@
       .ticker-change {
         font-size: 10px;
         font-weight: 850;
+      }
+      .ticker-history {
+        margin: 9px 0;
+        padding: 8px;
+        border: 1px solid #2a4661;
+        border-radius: 12px;
+        background: #0a1826;
+        color: var(--good);
+      }
+      .ticker-history.negative {
+        color: var(--bad);
+      }
+      .ticker-history.empty-history {
+        color: var(--muted);
+        min-height: 61px;
+        display: grid;
+        place-items: center;
+        text-align: center;
+        font-size: 9px;
+        line-height: 1.35;
+      }
+      .ticker-history-meta {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 6px;
+        margin-bottom: 4px;
+        font-size: 8px;
+        color: var(--muted);
+      }
+      .ticker-history-meta strong {
+        color: currentColor;
+        font-size: 9px;
+      }
+      .ticker-sparkline {
+        display: block;
+        width: 100%;
+        height: 48px;
+        overflow: visible;
+      }
+      .ticker-sparkline path {
+        fill: none;
+        stroke: currentColor;
+        stroke-width: 3;
+        stroke-linecap: round;
+        stroke-linejoin: round;
+        vector-effect: non-scaling-stroke;
       }
       .ticker-position {
         display: flex;
@@ -1688,7 +1735,7 @@
       <header class="top">
         <div>
           <div class="brand">MarketLab</div>
-          <div class="sub">Private cloud paper trading lab · v2.0.0</div>
+          <div class="sub">Private cloud paper trading lab · v2.1.0</div>
         </div>
         <div class="header-actions">
           <button id="learnButton" class="learn-button" type="button">? Learn</button>
@@ -1737,8 +1784,8 @@
           title: "How your result changed over time",
           purpose:
             "Connect portfolio movement with the dates you bought and sold.",
-          body: "Choose Balance for your overall simulated result, Cash for money paid or received, and Exposure for the size of your open positions. Tap or drag on the graph for exact values.",
-          terms: ["balance", "cash-flow", "exposure"],
+          body: "Choose Balance for your overall simulated result, Cash for money paid or received, Close-all cash for the estimated cash after closing every long and short position, and Exposure for the size of your open positions. Tap or drag on the graph for exact values.",
+          terms: ["balance", "liquidation-cash", "exposure"],
         },
         trade: {
           title: "Practice buying and selling",
@@ -1892,6 +1939,15 @@
             "Buy for $100, then sell for $120: net cash flow becomes +$20.",
           caution:
             "Negative cash flow is allowed because this app uses unlimited simulation mode.",
+        },
+        "liquidation-cash": {
+          title: "Cash if all positions are closed",
+          simple:
+            "The estimated cash result after selling every long position and buying back every short position at the historical price shown.",
+          example:
+            "If your cash flow is -$1,000 and your shares could be sold for about $1,120 after estimated costs, close-all cash is about +$120.",
+          caution:
+            "This estimate applies your configured slippage and one commission per open position. A real fill can be different.",
         },
         balance: {
           title: "Simulation balance",
@@ -2128,6 +2184,10 @@
         "realized p/l": "realized-pnl",
         "gross exposure": "gross-exposure",
         "net cash flow": "cash-flow",
+        "cash if all positions closed": "liquidation-cash",
+        "cash if close all": "liquidation-cash",
+        "close-all cash": "liquidation-cash",
+        "liquidation cash": "liquidation-cash",
         "long exposure": "long-exposure",
         "short exposure": "short-exposure",
         "current quote": "current-quote",
@@ -2629,42 +2689,41 @@
         const button = $("#refreshAll");
         button?.classList.add("busy");
         button && (button.disabled = true);
-        let updated = 0;
+        let updated = 0,
+          historiesLoaded = 0;
         const failures = [];
         try {
           for (let i = 0; i < symbols.length; i++) {
             const symbol = symbols[i];
             message(
-              `Refreshing ${symbol} from Twelve Data (${i + 1}/${symbols.length})…`,
+              `Refreshing ${symbol} quote and price history (${i + 1}/${symbols.length})…`,
             );
             try {
               const data = await api(
-                "/api/quotes?symbols=" +
+                "/api/market?symbol=" +
                   encodeURIComponent(symbol) +
                   "&force=1",
               );
-              const quote = data.quotes && data.quotes[symbol];
-              if (!quote)
-                throw new Error(
-                  (data.errors && data.errors[symbol]) ||
-                    "No Twelve Data quote returned",
-                );
-              if (!String(quote.provider || "").includes("Twelve Data"))
-                throw new Error(
-                  "Unexpected provider: " + (quote.provider || "unknown"),
-                );
-              state.quotes[symbol] = quote;
+              if (!data.quote) throw new Error("No quote returned");
+              state.quotes[symbol] = data.quote;
+              state.history[symbol] = Array.isArray(data.points)
+                ? data.points
+                : [];
+              state.splits[symbol] = data.splits || [];
+              state.splitStatus[symbol] =
+                data.splitDataStatus || "unavailable";
               updated++;
+              if (state.history[symbol].length >= 2) historiesLoaded++;
               save();
-              render();
             } catch (error) {
               failures.push([symbol, String(error.message || error)]);
             }
             if (i < symbols.length - 1)
               await new Promise((resolve) => setTimeout(resolve, 1100));
           }
+          render();
           message(
-            `Updated ${updated} of ${symbols.length} companies directly from Twelve Data.${failures.length ? " Not updated: " + failures.map(([symbol, error]) => symbol + " (" + error + ")").join(", ") : ""}`,
+            `Updated ${updated} of ${symbols.length} companies and loaded price-history charts for ${historiesLoaded}.${failures.length ? " Not updated: " + failures.map(([symbol, error]) => symbol + " (" + error + ")").join(", ") : ""}`,
           );
         } finally {
           const current = $("#refreshAll");
@@ -2762,6 +2821,32 @@
           render();
         }
       }
+      function companyHistorySparkline(symbol) {
+        const rows = Array.isArray(state.history[symbol]) ? state.history[symbol] : [];
+        if (rows.length < 2)
+          return '<div class="ticker-history empty-history">Price history will appear here after Refresh all.</div>';
+        const filtered = MarketLabHistory.filterRows(rows, "3M").slice(-60),
+          values = filtered.map((row) => MarketLabHistory.priceValue(row));
+        if (values.length < 2 || values.some((value) => !Number.isFinite(value)))
+          return '<div class="ticker-history empty-history">Not enough valid history to draw this chart.</div>';
+        const min = Math.min(...values),
+          max = Math.max(...values),
+          span = max - min || 1,
+          width = 200,
+          height = 48,
+          path = values
+            .map(
+              (value, index) =>
+                `${index ? "L" : "M"} ${(index / (values.length - 1)) * width} ${height - 4 - ((value - min) / span) * (height - 8)}`,
+            )
+            .join(" "),
+          first = values[0],
+          last = values.at(-1),
+          changePercent = first ? ((last / first) - 1) * 100 : 0,
+          negative = changePercent < 0;
+        return `<div class="ticker-history ${negative ? "negative" : ""}"><div class="ticker-history-meta"><span>3M price history</span><strong>${signedPercent(changePercent)}</strong></div><svg class="ticker-sparkline" viewBox="0 0 ${width} ${height}" preserveAspectRatio="none" aria-label="${symbol} three month price history"><path d="${path}"/></svg></div>`;
+      }
+
       function boardCard(symbol) {
         const q = state.quotes[symbol],
           p = state.positions.find((x) => x.symbol === symbol),
@@ -2769,7 +2854,7 @@
           performance = p
             ? MarketLabTrading.positionResult(p, state.quotes)
             : null;
-        return `<article class="ticker-card ${state.symbol === symbol ? "selected" : ""}"><div class="ticker-top"><button class="ticker-open" data-open-symbol="${symbol}"><span class="ticker-symbol">${symbol}</span></button><button class="ticker-remove" data-remove-symbol="${symbol}" aria-label="Remove ${symbol}">×</button></div>${q ? `<div class="ticker-price">${money(q.price)}</div><div class="ticker-change ${q.change >= 0 ? "good" : "bad"}">${q.change >= 0 ? "+" : ""}${q.change.toFixed(2)} (${q.changePercent.toFixed(2)}%)</div><div class="ticker-source">${q.freshness || "quote"} · ${q.provider}<br>${q.marketDataAt || ""}</div>` : `<div class="ticker-price">—</div><div class="ticker-change muted">Quote not loaded</div><div class="ticker-source">Use Refresh all to load current prices.</div>`}<div class="ticker-position"><span class="position-side ${side}">${side.toUpperCase()}</span><strong>${p ? `${p.qty > 0 ? "+" : ""}${num(p.qty)} sh` : "No position"}</strong></div>${performance ? `<div class="ticker-pnl ${performance.value >= 0 ? "good" : "bad"}">P/L ${signedMoney(performance.value)} · ${signedPercent(performance.percent)}</div>` : '<div class="ticker-pnl muted">P/L —</div>'}${q ? `<div class="quick-actions"><button class="quick-buy" data-quick-side="buy" data-symbol="${symbol}">Buy</button><button class="quick-sell" data-quick-side="sell" data-symbol="${symbol}">Sell</button></div>` : `<button class="btn secondary ticker-load" data-load-symbol="${symbol}">Load data</button>`}<button class="ticker-open" data-open-symbol="${symbol}">Open chart & order</button></article>`;
+        return `<article class="ticker-card ${state.symbol === symbol ? "selected" : ""}"><div class="ticker-top"><button class="ticker-open" data-open-symbol="${symbol}"><span class="ticker-symbol">${symbol}</span></button><button class="ticker-remove" data-remove-symbol="${symbol}" aria-label="Remove ${symbol}">×</button></div>${q ? `<div class="ticker-price">${money(q.price)}</div><div class="ticker-change ${q.change >= 0 ? "good" : "bad"}">${q.change >= 0 ? "+" : ""}${q.change.toFixed(2)} (${q.changePercent.toFixed(2)}%)</div><div class="ticker-source">${q.freshness || "quote"} · ${q.provider}<br>${q.marketDataAt || ""}</div>` : `<div class="ticker-price">—</div><div class="ticker-change muted">Quote not loaded</div><div class="ticker-source">Use Refresh all to load current prices and history.</div>`}${companyHistorySparkline(symbol)}<div class="ticker-position"><span class="position-side ${side}">${side.toUpperCase()}</span><strong>${p ? `${p.qty > 0 ? "+" : ""}${num(p.qty)} sh` : "No position"}</strong></div>${performance ? `<div class="ticker-pnl ${performance.value >= 0 ? "good" : "bad"}">P/L ${signedMoney(performance.value)} · ${signedPercent(performance.percent)}</div>` : '<div class="ticker-pnl muted">P/L —</div>'}${q ? `<div class="quick-actions"><button class="quick-buy" data-quick-side="buy" data-symbol="${symbol}">Buy</button><button class="quick-sell" data-quick-side="sell" data-symbol="${symbol}">Sell</button></div>` : `<button class="btn secondary ticker-load" data-load-symbol="${symbol}">Load data</button>`}<button class="ticker-open" data-open-symbol="${symbol}">Open full chart & order</button></article>`;
       }
       function tradingBoard() {
         return `<section class="card"><div class="market-board-head"><div><div class="eyebrow">Multi-company board</div><h2>Trade several companies quickly</h2></div><button id="refreshAll" class="btn refresh-all">↻ Refresh all</button></div><div class="board-controls"><div class="field"><label>Add symbol</label><input id="boardSymbol" autocapitalize="characters" placeholder="e.g. AMD"></div><button id="addBoardSymbol" class="btn">Add</button></div><div class="field board-quantity"><label>Quick trade quantity</label><input id="boardQty" inputmode="decimal" value="${state.boardQty}"></div><div class="market-board">${(state.watchlist || []).map(boardCard).join("")}</div><div class="unlimited-note"><b>Unlimited simulation mode:</b> buys do not require cash, and sells can open or increase short positions. Every open company card shows P/L in dollars and percentage.</div></section>`;
@@ -2952,7 +3037,7 @@
         const range = MarketLabPerformance.normalizeRange(
             state.performanceRange,
           ),
-          metric = ["balance", "cash", "exposure"].includes(
+          metric = ["balance", "cash", "liquidation", "exposure"].includes(
             state.performanceMetric,
           )
             ? state.performanceMetric
@@ -2966,15 +3051,19 @@
           metricLabel =
             metric === "cash"
               ? "Net cash flow"
-              : metric === "exposure"
-                ? "Gross exposure"
-                : "Simulation balance",
+              : metric === "liquidation"
+                ? "Cash if all positions closed"
+                : metric === "exposure"
+                  ? "Gross exposure"
+                  : "Simulation balance",
           metricDescription =
             metric === "cash"
               ? "Cash received minus cash spent"
-              : metric === "exposure"
-                ? "Absolute long and short market value"
-                : "Net simulated result from zero starting capital";
+              : metric === "liquidation"
+                ? "Estimated cash after selling longs, covering shorts, slippage, and exit commissions"
+                : metric === "exposure"
+                  ? "Absolute long and short market value"
+                  : "Net simulated result from zero starting capital";
         if (!result.points.length)
           return `<div class="stack"><section class="card"><div class="eyebrow">Portfolio performance</div><h2>Balance over time</h2><p class="muted">Every buy and sell will appear here as a marker and timeline event.</p></section><section class="card"><div class="empty">Make your first simulated trade to create the performance timeline.</div></section></div>`;
         const w = 660,
@@ -3020,11 +3109,13 @@
           first = result.points[0],
           last = result.points.at(-1),
           percent =
-            metric === "balance" && Math.abs(start) > 1e-9
+            ["balance", "liquidation"].includes(metric) && Math.abs(start) > 1e-9
               ? `${change >= 0 ? "+" : ""}${((change / Math.abs(start)) * 100).toFixed(2)}%`
               : "—",
           buys = result.events.filter((e) => e.side === "buy").length,
           sells = result.events.filter((e) => e.side === "sell").length,
+          liquidationNow = Number(last.liquidationCash || 0),
+          liquidationCostsNow = Number(last.liquidationCosts || 0),
           missing = tradeSymbols.filter(
             (s) =>
               !Array.isArray(state.history[s]) || state.history[s].length < 2,
@@ -3037,9 +3128,10 @@
                 `<div class="performance-event"><div class="event-badge ${event.side}">${event.side === "buy" ? "BUY" : "SELL"}</div><div class="event-main"><strong>${event.symbol} · ${num(event.qty)} shares at ${money(event.price)}</strong><small>${new Date(event.time).toLocaleString()} · cash impact ${signedMoney(event.cashImpact)}${event.fee ? ` · fee ${money(event.fee)}` : ""}</small></div><div class="event-balance"><strong class="${event.balanceAfter >= 0 ? "good" : "bad"}">${signedMoney(event.balanceAfter)}</strong><small>balance after day</small></div></div>`,
             )
             .join("");
-        return `<div class="stack"><section class="card"><div class="eyebrow">Portfolio performance</div><h2>Balance and trades over time</h2><p class="muted">Because unlimited mode has no starting capital, Balance means net simulated result: cash flow plus signed market value.</p><div class="performance-controls"><div class="performance-toolbar"><div class="field"><label>Companies</label><select id="performanceSymbol">${symbols.map((value) => `<option value="${value}" ${symbol === value ? "selected" : ""}>${value === "ALL" ? "All companies" : value}</option>`).join("")}</select></div><div><div class="field"><label>Time range</label></div><div class="performance-ranges">${["1M", "3M", "1Y", "ALL"].map((value) => `<button data-performance-range="${value}" class="${range === value ? "active" : ""}">${value === "ALL" ? "All" : value}</button>`).join("")}</div></div></div><div><div class="field"><label>Chart metric</label></div><div class="performance-metrics">${[
+        return `<div class="stack"><section class="card"><div class="eyebrow">Portfolio performance</div><h2>Balance, close-all cash, and trades over time</h2><p class="muted">Because unlimited mode has no starting capital, Balance means net simulated result. Close-all cash estimates what would remain after selling longs and covering shorts using the historical price, configured slippage, and one commission per open position.</p><div class="performance-controls"><div class="performance-toolbar"><div class="field"><label>Companies</label><select id="performanceSymbol">${symbols.map((value) => `<option value="${value}" ${symbol === value ? "selected" : ""}>${value === "ALL" ? "All companies" : value}</option>`).join("")}</select></div><div><div class="field"><label>Time range</label></div><div class="performance-ranges">${["1M", "3M", "1Y", "ALL"].map((value) => `<button data-performance-range="${value}" class="${range === value ? "active" : ""}">${value === "ALL" ? "All" : value}</button>`).join("")}</div></div></div><div><div class="field"><label>Chart metric</label></div><div class="performance-metrics">${[
           ["balance", "Balance"],
-          ["cash", "Cash"],
+          ["cash", "Cash flow"],
+          ["liquidation", "Close-all cash"],
           ["exposure", "Exposure"],
         ]
           .map(
@@ -3048,7 +3140,7 @@
           )
           .join(
             "",
-          )}</div></div></div></section><section class="card"><div class="history-head"><div><div class="eyebrow">${metricLabel}</div><h2>${metricDescription}</h2></div><strong class="${current >= 0 ? "good" : "bad"}">${signedMoney(current)}</strong></div><div class="performance-summary"><div><span>Range change</span><strong class="${change >= 0 ? "good" : "bad"}">${signedMoney(change)}</strong></div><div><span>Change %</span><strong>${percent}</strong></div><div><span>Buys</span><strong>${buys}</strong></div><div><span>Sells</span><strong>${sells}</strong></div></div><div id="performanceCanvas" class="performance-canvas"><svg id="performanceSvg" class="performance-svg" viewBox="0 0 ${w} ${h}" preserveAspectRatio="none" aria-label="${range} ${metricLabel} chart">${ticks}${zeroY === null ? "" : `<line class="performance-zero" x1="${pad.left}" x2="${w - pad.right}" y1="${zeroY}" y2="${zeroY}"/>`}<path class="performance-area ${negative ? "negative" : ""}" d="${area}"/><path class="performance-line ${negative ? "negative" : ""}" d="${g.path}"/>${markerSvg}</svg><div class="chart-crosshair"></div><div class="chart-dot"></div><div class="chart-tooltip"><strong></strong><span></span></div></div><div class="history-footer"><span>${first.day}</span><span>${result.points[Math.floor(result.points.length / 2)].day}</span><span>${last.day}</span></div><div class="performance-legend"><span class="buy">Buy marker</span><span class="sell">Sell marker</span><span>Tap a marker for details</span></div>${missing.length ? `<div class="coverage-note">Load price history for ${missing.join(", ")} to improve the portfolio curve. Until then MarketLab carries forward the latest available trade or quote price.</div>` : ""}</section><section class="card"><div class="eyebrow">Trade timeline</div><h2>When you bought and sold</h2>${timeline || '<div class="empty">No trades in this selected range.</div>'}</section></div>`;
+          )}</div></div></div></section><section class="card"><div class="history-head"><div><div class="eyebrow">${metricLabel}</div><h2>${metricDescription}</h2></div><strong class="${current >= 0 ? "good" : "bad"}">${signedMoney(current)}</strong></div><div class="performance-summary"><div><span>Range change</span><strong class="${change >= 0 ? "good" : "bad"}">${signedMoney(change)}</strong></div><div><span>Change %</span><strong>${percent}</strong></div><div><span>Cash if close all</span><strong class="${liquidationNow >= 0 ? "good" : "bad"}">${signedMoney(liquidationNow)}</strong></div><div><span>Estimated exit costs</span><strong>${money(liquidationCostsNow)}</strong></div><div><span>Buys</span><strong>${buys}</strong></div><div><span>Sells</span><strong>${sells}</strong></div></div><div id="performanceCanvas" class="performance-canvas"><svg id="performanceSvg" class="performance-svg" viewBox="0 0 ${w} ${h}" preserveAspectRatio="none" aria-label="${range} ${metricLabel} chart">${ticks}${zeroY === null ? "" : `<line class="performance-zero" x1="${pad.left}" x2="${w - pad.right}" y1="${zeroY}" y2="${zeroY}"/>`}<path class="performance-area ${negative ? "negative" : ""}" d="${area}"/><path class="performance-line ${negative ? "negative" : ""}" d="${g.path}"/>${markerSvg}</svg><div class="chart-crosshair"></div><div class="chart-dot"></div><div class="chart-tooltip"><strong></strong><span></span></div></div><div class="history-footer"><span>${first.day}</span><span>${result.points[Math.floor(result.points.length / 2)].day}</span><span>${last.day}</span></div><div class="performance-legend"><span class="buy">Buy marker</span><span class="sell">Sell marker</span><span>Tap a marker for details</span></div>${missing.length ? `<div class="coverage-note">Load price history for ${missing.join(", ")} to improve the portfolio curve. Until then MarketLab carries forward the latest available trade or quote price.</div>` : ""}</section><section class="card"><div class="eyebrow">Trade timeline</div><h2>When you bought and sold</h2>${timeline || '<div class="empty">No trades in this selected range.</div>'}</section></div>`;
       }
       function bindPerformance() {
         document.querySelectorAll("[data-performance-range]").forEach(
@@ -3395,7 +3487,7 @@
           58,
           14,
           (p) => money(p.value),
-          (p) => `${p.day} · ${metric}`,
+          (p) => `${p.day} · ${metric === "liquidation" ? "cash if all positions closed" : metric}`,
         );
       }
       function bindCursor(

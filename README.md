@@ -1,4 +1,4 @@
-# MarketLab Cloud v2.0.0
+# MarketLab Cloud v2.1.0
 
 MarketLab Cloud is the Cloudflare-hosted conversion of the beginner-friendly MarketLab v1.12.0 iPhone paper-trading application.
 
@@ -71,3 +71,10 @@ npm run dev
 ```
 
 The Worker also creates its tables automatically with `CREATE TABLE IF NOT EXISTS`, while `schema.sql` is provided for inspection or manual initialization.
+
+
+## v2.1 additions
+
+- Every company card shows a three-month price-history sparkline after Refresh all.
+- Refresh all loads both current quotes and historical candles.
+- Performance includes a Close-all cash metric that estimates cash after selling longs, covering shorts, slippage, and exit commissions.

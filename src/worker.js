@@ -1,5 +1,5 @@
 const APP_NAME = "MarketLab Cloud";
-const DEFAULT_VERSION = "2.0.0";
+const DEFAULT_VERSION = "2.1.0";
 const QUOTE_TTL_SECONDS = 30;
 const HISTORY_TTL_SECONDS = 15 * 60;
 const SPLIT_TTL_SECONDS = 30 * 24 * 60 * 60;
@@ -353,8 +353,14 @@ async function loadHistory(env, symbol, force = false) {
   let rows;
   let provider;
   if (env.ALPHA_VANTAGE_API_KEY) {
-    rows = parseAlphaHistory(await alphaJson(env, { function: "TIME_SERIES_DAILY", symbol, outputsize: "compact" }));
-    provider = "Alpha Vantage";
+    try {
+      rows = parseAlphaHistory(await alphaJson(env, { function: "TIME_SERIES_DAILY", symbol, outputsize: "compact" }));
+      provider = "Alpha Vantage";
+    } catch (error) {
+      if (!env.TWELVE_DATA_API_KEY) throw error;
+      rows = await twelveHistory(env, symbol);
+      provider = "Twelve Data history (Alpha Vantage fallback)";
+    }
   } else {
     rows = await twelveHistory(env, symbol);
     provider = "Twelve Data";
