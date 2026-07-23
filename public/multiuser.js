@@ -1,7 +1,7 @@
 (() => {
   "use strict";
 
-  const VERSION = "2.2.0";
+  const VERSION = "2.2.1";
   let currentUser = null;
 
   function escapeHtml(value) {

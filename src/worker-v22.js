@@ -1,6 +1,6 @@
 import { workerFetch as legacyWorkerFetch } from "./worker.js";
 
-const APP_VERSION = "2.2.0";
+const APP_VERSION = "2.2.1";
 const SESSION_TTL_SECONDS = 30 * 24 * 60 * 60;
 const MAX_JSON_BYTES = 5_000_000;
 const PASSWORD_ITERATIONS = 100_000;
@@ -833,11 +833,30 @@ async function serveAsset(request, env, authenticated) {
 async function fetchHandler(request, env) {
   const url = new URL(request.url);
   if (url.pathname === "/healthz") return jsonResponse({ status: "ok", service: "marketlab-cloud", version: env.APP_VERSION || APP_VERSION, multiUser: true });
-  if (["/manifest.webmanifest", "/service-worker.js", "/icon.svg", "/icon-192.png", "/icon-512.png"].includes(url.pathname)) {
+  if ([
+    "/manifest.webmanifest",
+    "/service-worker.js",
+    "/icon.svg",
+    "/icon-192.png",
+    "/icon-512.png",
+    "/history.js",
+    "/trading.js",
+    "/performance.js",
+    "/insights.js",
+    "/multiuser.js",
+    "/multiuser.css",
+  ].includes(url.pathname)) {
     return serveAsset(request, env, false);
   }
 
-  await ensureMultiUserSchema(env);
+  try {
+    await ensureMultiUserSchema(env);
+  } catch (error) {
+    console.error("Multi-user schema initialization failed", error);
+    const message = String(error?.message || error);
+    if (url.pathname.startsWith("/api/")) return jsonResponse({ error: message }, 503);
+    return htmlResponse(`<h1>MarketLab database setup error</h1><p>${htmlEscape(message)}</p>`, 503);
+  }
 
   if (url.pathname === "/auth/login" && request.method === "POST") {
     const form = await request.formData();
