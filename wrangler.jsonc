@@ -1,6 +1,6 @@
 {
   "$schema": "./node_modules/wrangler/config-schema.json",
-  "name": "marketlab-cloud",
+  "name": "marketlab-cloud-2",
   "main": "src/worker-v22.js",
   "compatibility_date": "2026-07-16",
   "workers_dev": true,
