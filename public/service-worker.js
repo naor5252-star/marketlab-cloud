@@ -1,10 +1,10 @@
-const CACHE = "marketlab-cloud-v2.1.0";
-const SHELL = ["/", "/index.html", "/history.js", "/trading.js", "/performance.js", "/insights.js", "/manifest.webmanifest", "/icon.svg"];
+const CACHE = "marketlab-cloud-v2.2.0";
+const SHELL = ["/", "/index.html", "/history.js", "/trading.js", "/performance.js", "/insights.js", "/multiuser.js", "/multiuser.css", "/manifest.webmanifest", "/icon.svg"];
 self.addEventListener("install", (event) => event.waitUntil(caches.open(CACHE).then((cache) => cache.addAll(SHELL)).then(() => self.skipWaiting())));
 self.addEventListener("activate", (event) => event.waitUntil(caches.keys().then((keys) => Promise.all(keys.filter((key) => key !== CACHE).map((key) => caches.delete(key)))).then(() => self.clients.claim())));
 self.addEventListener("fetch", (event) => {
   const url = new URL(event.request.url);
-  if (event.request.method !== "GET" || url.pathname.startsWith("/api/") || url.pathname.startsWith("/auth/") || url.pathname === "/login") return;
+  if (event.request.method !== "GET" || url.pathname.startsWith("/api/") || url.pathname.startsWith("/auth/") || url.pathname === "/login" || url.pathname === "/logout") return;
   if (event.request.mode === "navigate") {
     event.respondWith(fetch(event.request).catch(() => caches.match("/index.html")));
     return;
